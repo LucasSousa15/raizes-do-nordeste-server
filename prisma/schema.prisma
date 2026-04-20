@@ -1,0 +1,121 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  STAFF
+}
+
+enum User_status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum Profile {
+  KITCHEN
+  WAITER
+  CASHIER
+}
+
+enum Channel {
+  WEB
+  APP
+  TOTEM
+  IN_STORE
+  PICKUP
+}
+
+model User {
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  password String
+  role     Role
+  status   User_status
+  profile  Profile?
+
+  customers Customer[]
+}
+
+model Customer {
+  id     String @id @default(uuid())
+  cpf    String @unique
+  user   User   @relation(fields: [userId], references: [id])
+  points Int
+  userId String @unique
+
+  orders Order[]
+}
+
+model Store {
+  id      String @id @default(uuid())
+  name    String
+  address String
+
+  stocks StoreStock[]
+
+  orders Order[]
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  stocks StoreStock[]
+
+  globalStocks GlobalStock[]
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    String
+  channel    Channel
+  customerId String
+  total      Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  
+
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  orderId   String
+  productId String
+}
+
+model StoreStock {
+  id        String  @id @default(uuid())
+  store     Store   @relation(fields: [storeId], references: [id])
+  storeId   String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  productId String
+}
+
+model GlobalStock {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  productId String
+}
