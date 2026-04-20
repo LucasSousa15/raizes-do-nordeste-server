@@ -1,7 +1,4 @@
-
-//TODO: Mover essas tipagens pro arquivo de tipos globais ou para o módulo especifico de usuários.
-type UserRole = "USER" | "ADMIN" | "STAFF";
-type UserProfile = "KITCHEN" | "WAITER" | "CASHIER";
+import { UserProfile, UserRole } from "src/core/shared/types/roles.types";
 
 export interface JwtPayload {
   sub: string;
@@ -12,7 +9,7 @@ export interface JwtPayload {
   verifiedEmail: boolean;
 }
 
-export abstract class TokenService {
+export abstract class TokenService { 
   abstract signAccessToken(payload: JwtPayload): Promise<string>;
   abstract signRefreshToken(payload: JwtPayload): Promise<string>;
   abstract verifyAccessToken(token: string): Promise<JwtPayload>;
