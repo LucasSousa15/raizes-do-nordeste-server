@@ -27,5 +27,7 @@ async function bootstrap() {
 
 
   await app.listen(env.PORT ?? 3000);
+
+  console.log(`Aplicação rodando na porta http://localhost:${env.PORT ?? 3000}`);
 }
 bootstrap();
