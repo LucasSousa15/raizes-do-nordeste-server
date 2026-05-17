@@ -27,6 +27,14 @@ export enum UserProfile {
   CASHIER = "cashier",
 }
 
+export interface Customer {
+  id: string;
+  cpf: string;
+  consent: boolean;
+  consentAt: Date;
+  points: number;
+}
+
 export interface IUser {
   id: string;
   name: string;
@@ -34,6 +42,7 @@ export interface IUser {
   password: string;
   role: UserRole;
   status: UserStatus;
+  customer?: Customer;
   profile?: UserProfile;
 }
 

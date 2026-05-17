@@ -33,6 +33,21 @@ enum Channel {
   PICKUP
 }
 
+enum OrderStatus {
+  PENDING
+  IN_KITCHEN
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
 model User {
   id       String   @id @default(uuid())
   name     String
@@ -42,15 +57,20 @@ model User {
   status   User_status
   profile  Profile?
 
-  customers Customer[]
+  customer Customer?
 }
 
 model Customer {
   id     String @id @default(uuid())
   cpf    String @unique
   user   User   @relation(fields: [userId], references: [id])
+  consent    Boolean  @default(false)
+  consentAt  DateTime?
   points Int
   userId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   orders Order[]
 }
@@ -75,6 +95,9 @@ model Product {
   globalStocks GlobalStock[]
 
   orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Order {
@@ -84,13 +107,15 @@ model Order {
   storeId    String
   channel    Channel
   customerId String
-  total      Float
+  total      Float  @default(0)
+  status     OrderStatus @default(PENDING)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   
 
   orderItems OrderItem[]
+  payments   Payment[]
 }
 
 model OrderItem {
@@ -108,13 +133,33 @@ model StoreStock {
   store     Store   @relation(fields: [storeId], references: [id])
   storeId   String
   product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
+  quantity  Int @default(0)
   productId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, productId])
 }
 
 model GlobalStock {
   id        String  @id @default(uuid())
   product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
+  quantity  Int @default(0)
   productId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  order           Order         @relation(fields: [orderId], references: [id])
+  orderId         String
+  provider        String
+  status          PaymentStatus @default(PENDING)
+  requestPayload  Json?
+  responsePayload Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }

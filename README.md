@@ -1,98 +1,174 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+![Brasil](https://img.shields.io/badge/Brasil-008C45?style=for-the-badge&logo=github&logoColor=ffffff&labelColor=FFCC29)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Raízes do Nordeste — Backend (Lucas)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Este repositório é a implementação do Back-end do projeto "Raízes do Nordeste" — atividade prática da disciplina Projeto Multidisciplinar (Trilha Back-End, 2026).
 
-## Description
+Nota rápida: o repositório é público. NÃO compartilhe chaves ou `.env` com credenciais.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Resumo técnico
+- Autor: Lucas dos Anjos de Sousa
+- Stack: NestJS + TypeScript
+- ORM: Prisma (migrations presentes)
+- Autenticação: JWT (serviço de token implementado)
+- Testes: Vitest (unitários); objetivo: adicionar E2E e coleção Postman/Insomnia
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## Quick English summary
+![UK](https://img.shields.io/badge/UK-00247D?style=for-the-badge&logo=github&logoColor=ffffff&labelColor=C8102E)
+
+Multichannel backend for a franchise network. Stack: NestJS + TypeScript, Prisma, JWT authentication. Tests with Vitest. Read the README (PT) for details.
+
+---
+
+## Como rodar (mínimo reproduzível)
+1. Instale dependências:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+2. Crie `.env` a partir de `.env.example` (a criar):
+- `DATABASE_URL`
+- `JWT_ACCESS_SECRET`
+- `JWT_REFRESH_SECRET`
+- `JWT_ACCESS_EXPIRES_IN`
+- `JWT_REFRESH_EXPIRES_IN`
+
+3. Rode migrations (Prisma):
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma migrate deploy
+# ou em dev
+npx prisma migrate dev
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+4. Inicie em modo dev:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Testes unitários:
 
-## Resources
+```bash
+npm run test
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Requisitos do roteiro e como o projeto atende
+O roteiro exige objetivos, requisitos funcionais e não-funcionais, DER, documentação de API (OpenAPI/Swagger), mock de pagamento, LGPD mínimo e evidências (README, Postman/Insomnia, Swagger, DER). Abaixo uma TodoList do que já foi implementado e o que ainda está pendente.
 
-## Support
+### Requisitos funcionais (RF) — status
+- Cadastro e autenticação (roles): parcial — `CreateUserUseCase` e token service presentes; falta fluxo de login/refresh e controllers.
+- Cardápio por unidade / consulta por unidade: planejado (endpoints `/products` e `/units`).
+- Pedidos com itens, valores, status e `canalPedido`: planejado; modelo do pedido ainda a confirmar no DER.
+- Controle de estoque por unidade: opcional para o fluxo B (a definir como MVP alternativo).
+- Programa de fidelização, promoções e mock de pagamento: documentação e estrutura previstas; implementação futura.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Requisitos não funcionais (RNF)
+- Segurança: senhas com hash (implementado), JWT (serviço implementado), cuidado com exposição de dados (parcial).
+- Logs/auditoria: não implementado — declarar explicitamente se não for implementado.
+- Documentação OpenAPI/Swagger: pendente (planejo gerar via decorators do NestJS).
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Artefatos exigidos pelo roteiro (planejamento)
+- README claro e reproduzível (esta versão).
+- DER (imagem/PDF) — a adicionar em `docs/DER.png`.
+- OpenAPI/Swagger — gerar e commitar `docs/openapi.json`.
+- Coleção Postman/Insomnia — adicionar em `docs/postman_collection.json`.
+- Plano de testes com ≥10 cenários — adicionar em `docs/test_plan.md`.
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Documentação mínima de API (template)
+Segue o template exigido pelo roteiro — exemplo para `/auth/login` e `/pedidos` será incluído no Swagger.
+
+[Recurso] — [Nome do endpoint]
+Finalidade: ...
+Método/Rota: POST /auth/login
+Auth/Permissão: público
+Parâmetros: --
+Request (JSON):
+```
+{ "email": "user@example.com", "senha": "Senha@123" }
+```
+Response 200:
+```
+{ "accessToken": "jwt...", "tokenType": "Bearer", "expiresIn": 3600, "user": { "id": 1, "nome": "Lucas" } }
+```
+Erros: 401, 400/422, etc. Padrão de erro JSON será adotado conforme roteiro.
+
+---
+
+## LGPD, privacidade e segurança (resumo)
+- Dados pessoais coletados: `name`, `email`, `telefone` — finalidade: autenticação, histórico de pedidos e fidelização.
+- Consentimento: armazenar `consentimentoAt` quando aplicável (marketing/fidelidade).
+- Armazenamento seguro: senhas hasheadas; não enviar `password` em responses.
+- Logs sensíveis: registrar mudanças de status de pedidos e ações administrativas (quando implementado).
+
+---
+
+## Plano de testes (resumo)
+Meta: ≥10 cenários (≥6 positivos, ≥4 negativos). Exemplos:
+- T01: Login válido (POST /auth/login) → 200 + accessToken
+- T02: Acesso sem token (GET /pedidos) → 401
+- T03: Criar pedido com estoque insuficiente → 409
+- T04: Pagamento mock recusado → atualizar status de pedido
+(Detalhes a incluir em `docs/test_plan.md` e na coleção Postman.)
+
+---
+
+## Status: o que está feito
+- `prisma/` com `schema.prisma` e migrações — presente
+- `src/modules/accounts/application/use-cases/create-user.use-case.ts` — implementado (hash de senha com bcrypt)
+- `src/modules/accounts/infra/database/prisma/mappers/prisma-user.mapper.ts` — implementado
+- `src/modules/accounts/infra/database/prisma/prisma-users.repository.ts` — `create` implementado; demais métodos pendentes
+- `src/core/providers/cryptography/implementation/brcypt.provider.ts` — provider de hash implementado
+- `src/core/token/implementation/jwt-token.service.ts` — serviço JWT implementado
+- Testes unitários do caso de uso em `test/accounts/use-cases/create-user.spec.ts`
+
+---
+
+## Status: o que falta
+1. Implementar controllers/rotas HTTP para `usuarios` e `auth` (endpoints + validações + documentação)
+2. Completar `PrismaUsersRepository` (findByEmail, findById, findMany, update, delete)
+3. Implementar módulo `auth` (login, refresh, logout) e guards (roles)
+4. Implementar fluxo crítico escolhido (Pedido → Pagamento mock → Atualização de status) ou o fluxo de Estoque por unidade
+5. Gerar OpenAPI/Swagger e coleção Postman/Insomnia
+6. Adicionar `.env.example`, `docs/DER.png`, `docs/postman_collection.json` e `docs/test_plan.md`
+7. Adicionar E2E tests cobrindo o fluxo crítico
+
+---
+
+## Próximos passos 
+Vou dividir as próximas entregas em itens acionáveis para você mapear prioridades e estimativas.
+
+Prioridade alta (MVP / entrega obrigatória):
+- [ ] Implementar controllers básicos de `usuarios` (endpoints, DTOs, validação, testes unitários)
+- [ ] Completar `PrismaUsersRepository` (findByEmail, findById, findMany, update, delete)
+- [ ] Implementar módulo `auth` (login, refresh, logout) e guards (roles)
+- [ ] Implementar fluxo crítico (escolher: Pedido→Pagamento mock→Atualização de status OR Estoque por unidade)
+- [ ] Implementar multicanalidade: incluir `canalPedido` no contrato de pedido e permitir filtro por canal
+
+Prioridade média (documentação e evidências):
+- [ ] Criar `.env.example` com variáveis mínimas
+- [ ] Gerar OpenAPI/Swagger e commitar export em `docs/openapi.json`
+- [ ] Criar coleção Postman/Insomnia e salvar em `docs/postman_collection.json`
+- [ ] Gerar DER e commitar imagem em `docs/DER.png`
+- [ ] Escrever `docs/test_plan.md` com ≥10 cenários (≥6 positivos, ≥4 negativos)
+
+Prioridade baixa (entrega/qualidade):
+- [ ] Adicionar E2E tests cobrindo o fluxo crítico
+- [ ] Preparar entrega final em PDF conforme ABNT (arquivo único)
+- [ ] Garantir mínimo 5 commits representativos no repositório
+- [ ] Revisar dependências (harmonizar `bcrypt` vs `bcryptjs`)
+
+---
+
+_Assinado: Lucas dos Anjos de Sousa_
