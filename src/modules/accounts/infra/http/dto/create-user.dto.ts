@@ -134,5 +134,3 @@ export class CustomerUserDTO {
   @IsDefined()
   customerData!: CustomerDataDTO;
 }
-
-// Note: CreateUserDTO representation removed — controller defines request body schema with oneOf + discriminator

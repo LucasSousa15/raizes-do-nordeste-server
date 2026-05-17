@@ -10,7 +10,13 @@ import { PrismaUserMapper } from "../mappers/prisma-user.mapper";
 export class PrismaUsersRepository implements UsersRepository {
     constructor(private prisma: PrismaService) {}
     findByEmail(email: string): Promise<IUser | null> {
-        throw new Error("Method not implemented.");
+        const prismUSer = PrismaUserMapper.toPrisma({ email: email } as IUser);
+        return this.prisma.user.findUnique({
+            where: { email: prismUSer.email }
+        }).then(user => {
+            if (!user) return null;
+            return PrismaUserMapper.toDomain(user);
+        });
     }
     findById(id: string): Promise<IUser | null> {
         throw new Error("Method not implemented.");

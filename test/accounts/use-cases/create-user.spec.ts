@@ -68,4 +68,22 @@ describe('CreateUserUseCase', () => {
         })).rejects.toBeInstanceOf(PersonalInfoRequiredError);
     });
 
+    it ('should not be able to create a user with existing email', async () => {
+        await sut.execute({
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            password: 'password',
+            role: UserRole.ADMIN,
+            status: UserStatus.ACTIVE,
+        });
+
+        await expect(() => sut.execute({
+            name: 'Jane Doe',
+            email: 'john.doe@example.com',
+            password: 'password',
+            role: UserRole.STAFF,
+            status: UserStatus.ACTIVE,
+        })).rejects.toBeInstanceOf(Error);
+
+    });
 })
