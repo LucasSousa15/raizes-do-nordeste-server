@@ -1,5 +1,5 @@
-import { IUser, UserProfile, UserRole, UserStatus } from "src/modules/accounts/@types/users";
-import type { User, Role, User_status, Profile } from "@prisma/client";
+import { Customer, IUser, UserProfile, UserRole, UserStatus } from "src/modules/accounts/@types/users";
+import type { User, Role, User_status, Profile, Customer as PrismaCustomer, Prisma } from "@prisma/client";
 
 // Ajuste os valores abaixo conforme os enums reais do seu domínio e do Prisma.
 const roleDomainToPrisma: Record<UserRole, Role> = {
@@ -50,8 +50,27 @@ function statusFromPrisma(status: User_status): UserStatus {
     return mapped;
 }
 
+function profileToPrisma(profile?: UserProfile): Profile | null {
+    if (!profile) return null;
+    return profile as unknown as Profile;
+}
+
+function customerDataToPrisma(customerData: Customer): PrismaCustomer | null {
+    if (!customerData) return null;
+    return {
+        id: customerData.id,
+        cpf: customerData.cpf,
+        consent: customerData.consent,
+        consentAt: customerData.consentAt,
+        points: customerData.points,
+        userId: customerData.id,
+        createdAt: customerData.createdAt,
+        updatedAt: customerData.updatedAt
+    };
+}
+
 export class PrismaUserMapper {
-    static toPrisma(user: IUser) {
+    static toPrisma(user: IUser): Prisma.UserCreateInput {
         return {
             id: user.id,
             name: user.name,
@@ -59,11 +78,24 @@ export class PrismaUserMapper {
             password: user.password,
             role: roleToPrisma(user.role),
             status: statusToPrisma(user.status),
-            profile: user.profile as unknown as Profile | null
+            profile: profileToPrisma(user.profile),
+            customer: user.customerData
+                ? {
+                    create: {
+                        id: user.customerData.id,
+                        cpf: user.customerData.cpf,
+                        consent: user.customerData.consent,
+                        consentAt: user.customerData.consentAt,
+                        points: user.customerData.points,
+                        createdAt: user.customerData.createdAt,
+                        updatedAt: user.customerData.updatedAt,
+                    },
+                }
+                : undefined,
         };
     }
 
-    static toDomain(raw: User): IUser {
+    static toDomain(raw: User & { customer?: PrismaCustomer | null }): IUser {
         return {
             id: raw.id,
             name: raw.name,
@@ -71,7 +103,16 @@ export class PrismaUserMapper {
             password: raw.password,
             role: roleFromPrisma(raw.role),
             status: statusFromPrisma(raw.status),
-            profile: raw.profile as unknown as UserProfile
+            profile: raw.profile as unknown as UserProfile,
+            customerData: raw.customer ? {
+                id: raw.customer.id,
+                cpf: raw.customer.cpf,
+                consent: raw.customer.consent,
+                consentAt: raw.customer.consentAt,
+                points: raw.customer.points,
+                createdAt: raw.customer.createdAt,
+                updatedAt: raw.customer.updatedAt
+            } : undefined
         };
     }
 }

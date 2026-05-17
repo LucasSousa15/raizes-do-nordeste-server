@@ -10,6 +10,6 @@ import { TokenModule } from "./token/token.module";
 @Module({
   imports: [CryptographyModule, ConfigModule, DatabaseModule, TokenModule],
   exports: [DatabaseModule, ConfigModule, CryptographyModule, TokenModule],
-  controllers: [],})
+})
   
 export class CoreModule {}

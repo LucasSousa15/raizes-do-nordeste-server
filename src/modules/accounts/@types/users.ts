@@ -31,8 +31,10 @@ export interface Customer {
   id: string;
   cpf: string;
   consent: boolean;
-  consentAt: Date;
+  consentAt: Date | null;
   points: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IUser {
@@ -42,7 +44,16 @@ export interface IUser {
   password: string;
   role: UserRole;
   status: UserStatus;
-  customer?: Customer;
+  customerData?: Customer;
   profile?: UserProfile;
 }
 
+export interface CreateUserReq {
+    name: string;
+    email: string;
+    password: string;
+    status: UserStatus;
+    role: UserRole;
+    profile?: UserProfile;
+    customerData?: Omit<Customer, 'id'>;
+}

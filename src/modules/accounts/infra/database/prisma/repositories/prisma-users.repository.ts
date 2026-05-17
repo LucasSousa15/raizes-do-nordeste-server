@@ -1,13 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
+import { PrismaService } from "src/core/providers/database/models/prisma.service";
 import { IUser, PaginatedUsers } from "src/modules/accounts/@types/users";
 import { UsersRepository } from "src/modules/accounts/domain/repositories/users.repositories";
-import { PrismaUserMapper } from "./mappers/prisma-user.mapper";
+import { PrismaUserMapper } from "../mappers/prisma-user.mapper";
 
 
 @Injectable()
 export class PrismaUsersRepository implements UsersRepository {
-    private prisma = new PrismaClient();
+    constructor(private prisma: PrismaService) {}
     findByEmail(email: string): Promise<IUser | null> {
         throw new Error("Method not implemented.");
     }

@@ -3,6 +3,7 @@ import { InMemoryUsersRepository } from "../repositories/in-memory.users.reposit
 import { describe, expect, it, beforeEach } from 'vitest';
 import { UserProfile, UserRole, UserStatus, } from "src/modules/accounts/@types/users";
 import { ProfileRequiredError } from "src/modules/accounts/application/errors/profile-required.error";
+import { PersonalInfoRequiredError } from "src/modules/accounts/application/errors/personal-info-required.error";
 
 let usersRepository: InMemoryUsersRepository;
 let sut: CreateUserUseCase;
@@ -55,6 +56,16 @@ describe('CreateUserUseCase', () => {
             role: UserRole.STAFF,
             status: UserStatus.ACTIVE,
         })).rejects.toBeInstanceOf(ProfileRequiredError);
+    });
+
+    it('should not be able to create a customer user without personal info', async () => {
+        await expect(() => sut.execute({
+            name: 'Jane Doe',
+            email: 'jane.doe@example.com',
+            password: 'password',
+            role: UserRole.CUSTOMER,
+            status: UserStatus.ACTIVE,
+        })).rejects.toBeInstanceOf(PersonalInfoRequiredError);
     });
 
 })

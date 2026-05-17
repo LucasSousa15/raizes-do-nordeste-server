@@ -1,0 +1,240 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AdminUserDTO"
+                  },
+                  {
+                    "$ref": "#/components/schemas/StaffUserDTO"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CustomerUserDTO"
+                  }
+                ],
+                "discriminator": {
+                  "propertyName": "role",
+                  "mapping": {
+                    "admin": "#/components/schemas/AdminUserDTO",
+                    "staff": "#/components/schemas/StaffUserDTO",
+                    "customer": "#/components/schemas/CustomerUserDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Raízes do Nordeste API",
+    "description": "API usando NestJS, Prisma",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "AdminUserDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Nome completo"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@example.com",
+            "description": "E-mail"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Senha"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin",
+            "enum": [
+              "admin",
+              "staff",
+              "customer"
+            ],
+            "description": "Role do usuário"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role"
+        ]
+      },
+      "StaffUserDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Nome completo"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@example.com",
+            "description": "E-mail"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Senha"
+          },
+          "role": {
+            "type": "string",
+            "example": "staff",
+            "enum": [
+              "admin",
+              "staff",
+              "customer"
+            ],
+            "description": "Papel do usuário"
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "kitchen",
+              "waiter",
+              "cashier"
+            ],
+            "description": "Perfil (obrigatório para staff)"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role",
+          "profile"
+        ]
+      },
+      "CustomerDataDTO": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "example": "123.456.789-00",
+            "description": "CPF do cliente"
+          },
+          "consent": {
+            "type": "boolean",
+            "example": true,
+            "description": "Consentimento do cliente"
+          },
+          "consentAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-01-01T00:00:00Z",
+            "description": "Data do consentimento"
+          },
+          "points": {
+            "type": "number",
+            "example": 0,
+            "description": "Pontos acumulados"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-01-01T00:00:00Z",
+            "description": "Data de criação"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-01-01T00:00:00Z",
+            "description": "Data de atualização"
+          }
+        },
+        "required": [
+          "cpf",
+          "consent",
+          "consentAt",
+          "points",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CustomerUserDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Nome completo"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@example.com",
+            "description": "E-mail"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Senha"
+          },
+          "role": {
+            "type": "string",
+            "example": "customer",
+            "enum": [
+              "admin",
+              "staff",
+              "customer"
+            ],
+            "description": "Papel do usuário"
+          },
+          "customerData": {
+            "description": "Dados do cliente",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomerDataDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role",
+          "customerData"
+        ]
+      }
+    }
+  }
+}
