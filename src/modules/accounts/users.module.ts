@@ -4,6 +4,8 @@ import { PrismaUsersRepository } from './infra/database/prisma/repositories/pris
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { UsersController } from './infra/http/controllers/users.controller';
 import { FindUserUseCase } from './application/use-cases/find-users.use-case';
+import { UpdateUserUseCase } from './application/use-cases/update-user.user.case';
+import { DeleteUserUseCase } from './application/use-cases/delete-users.use-case';
 
 @Module({
   imports: [],
@@ -11,6 +13,8 @@ import { FindUserUseCase } from './application/use-cases/find-users.use-case';
   providers: [
     CreateUserUseCase,
     FindUserUseCase,
+    UpdateUserUseCase,
+    DeleteUserUseCase,
     {
       provide: UsersRepository,
       useClass: PrismaUsersRepository,
