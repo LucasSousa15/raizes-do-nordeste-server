@@ -1,41 +1,97 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
-import { PrismaService } from "src/core/providers/database/models/prisma.service";
-import { IUser, PaginatedUsers } from "src/modules/accounts/@types/users";
-import { UsersRepository } from "src/modules/accounts/domain/repositories/users.repositories";
-import { PrismaUserMapper } from "../mappers/prisma-user.mapper";
-
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/core/providers/database/models/prisma.service';
+import {
+  IUser,
+  PaginatedUsers,
+  UserStatus,
+} from 'src/modules/accounts/@types/users';
+import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
+import {
+  PrismaPaginatedUsersMapper,
+  PrismaUserMapper,
+  statusToPrisma,
+} from '../mappers/prisma-user.mapper';
 
 @Injectable()
 export class PrismaUsersRepository implements UsersRepository {
-    constructor(private prisma: PrismaService) {}
-    findByEmail(email: string): Promise<IUser | null> {
-        const prismUSer = PrismaUserMapper.toPrisma({ email: email } as IUser);
-        return this.prisma.user.findUnique({
-            where: { email: prismUSer.email }
-        }).then(user => {
-            if (!user) return null;
-            return PrismaUserMapper.toDomain(user);
-        });
-    }
-    findById(id: string): Promise<IUser | null> {
-        throw new Error("Method not implemented.");
-    }
-    findMany(): Promise<PaginatedUsers> {
-        throw new Error("Method not implemented.");
-    }
-    update(user: IUser): Promise<IUser> {
-        throw new Error("Method not implemented.");
-    }
-    delete(id: string): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    
-    async create(data: IUser): Promise<IUser> {
-        const prismaData = PrismaUserMapper.toPrisma(data);
-        const createdUser = await this.prisma.user.create({ data: prismaData });
+  constructor(private prisma: PrismaService) {}
+  findByEmail(email: string): Promise<IUser | null> {
+    return this.prisma.user
+      .findUnique({
+        where: { email },
+      })
+      .then((user) => {
+        if (!user) return null;
+        return PrismaUserMapper.toDomain(user);
+      });
+  }
 
-        return PrismaUserMapper.toDomain(createdUser);
-    }
+  findById(id: string): Promise<IUser | null> {
+    return this.prisma.user
+      .findUnique({
+        where: { id },
+      })
+      .then((user) => {
+        if (!user) return null;
+        return PrismaUserMapper.toDomain(user);
+      });
+  }
 
+  async findByStatus(
+    status: UserStatus,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedUsers> {
+    const currentPage = Math.max(Number(page), 1);
+    const itemsPerPage = Math.max(Number(limit), 1);
+    const where = { status: statusToPrisma(status) };
+
+    const [users, totalItems] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return PrismaPaginatedUsersMapper.toDomain(users, {
+      totalItems,
+      currentPage,
+      itemsPerPage,
+    });
+  }
+
+  async findMany(page = 1, limit = 10): Promise<PaginatedUsers> {
+    const currentPage = Math.max(Number(page), 1);
+    const itemsPerPage = Math.max(Number(limit), 1);
+
+    const [users, totalItems] = await Promise.all([
+      this.prisma.user.findMany({
+        skip: (currentPage - 1) * itemsPerPage,
+        take: itemsPerPage,
+      }),
+      this.prisma.user.count(),
+    ]);
+
+    return PrismaPaginatedUsersMapper.toDomain(users, {
+      totalItems,
+      currentPage,
+      itemsPerPage,
+    });
+  }
+
+  update(user: IUser): Promise<IUser> {
+    throw new Error('Method not implemented.');
+  }
+  delete(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async create(data: IUser): Promise<IUser> {
+    const prismaData = PrismaUserMapper.toPrisma(data);
+    const createdUser = await this.prisma.user.create({ data: prismaData });
+
+    return PrismaUserMapper.toDomain(createdUser);
+  }
 }

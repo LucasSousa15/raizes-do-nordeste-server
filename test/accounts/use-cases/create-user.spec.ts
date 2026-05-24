@@ -1,18 +1,24 @@
 import { CreateUserUseCase } from "src/modules/accounts/application/use-cases/create-user.use-case";
 import { InMemoryUsersRepository } from "../repositories/in-memory.users.repository";
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { UserProfile, UserRole, UserStatus, } from "src/modules/accounts/@types/users";
 import { ProfileRequiredError } from "src/modules/accounts/application/errors/profile-required.error";
 import { PersonalInfoRequiredError } from "src/modules/accounts/application/errors/personal-info-required.error";
+import { User } from "src/modules/accounts/domain/entities/user.entity";
+import { DataAlreadyUsedError } from "src/modules/accounts/application/errors/data-already-used.error";
 
 let usersRepository: InMemoryUsersRepository;
 let sut: CreateUserUseCase;
 
-describe('CreateUserUseCase', () => {
+describe('Create users tests', () => {
     beforeEach(() => {
         usersRepository = new InMemoryUsersRepository();
         sut = new CreateUserUseCase(usersRepository);
     })
+
+    afterEach(() => {
+        usersRepository.items = [];
+    });
 
     it('should be able to create a admin user', async () => {
         const { user } = await sut.execute({
@@ -83,7 +89,7 @@ describe('CreateUserUseCase', () => {
             password: 'password',
             role: UserRole.STAFF,
             status: UserStatus.ACTIVE,
-        })).rejects.toBeInstanceOf(Error);
+        })).rejects.toBeInstanceOf(DataAlreadyUsedError);
 
     });
 })
