@@ -64,3 +64,15 @@ export interface CreateUserReq {
       updatedAt?: Date;
     };
 }
+
+export type FindUserReq = {
+  id?: string;
+  email?: string;
+  status?: UserStatus;
+  page?: number;
+  limit?: number;
+};
+
+export type FindUserRes = {
+  user: PaginatedUsers | IUser | null;
+};

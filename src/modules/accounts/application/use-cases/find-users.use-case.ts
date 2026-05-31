@@ -1,18 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { IUser, PaginatedUsers, UserStatus } from '../../@types/users';
+import { FindUserReq, FindUserRes, IUser, PaginatedUsers, UserStatus } from '../../@types/users';
 import { UsersRepository } from '../../domain/repositories/users.repositories';
-
-export type FindUserReq = {
-  id?: string;
-  email?: string;
-  status?: UserStatus;
-  page?: number;
-  limit?: number;
-};
-
-export type FindUserRes = {
-  user: PaginatedUsers | IUser | null;
-};
 
 @Injectable()
 export class FindUserUseCase {
