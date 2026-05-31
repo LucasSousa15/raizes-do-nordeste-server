@@ -19,6 +19,7 @@ export class PrismaUsersRepository implements UsersRepository {
     return this.prisma.user
       .findUnique({
         where: { email },
+        include: { customer: true },
       })
       .then((user) => {
         if (!user) return null;
@@ -30,6 +31,7 @@ export class PrismaUsersRepository implements UsersRepository {
     return this.prisma.user
       .findUnique({
         where: { id },
+        include: { customer: true },
       })
       .then((user) => {
         if (!user) return null;
@@ -49,6 +51,7 @@ export class PrismaUsersRepository implements UsersRepository {
     const [users, totalItems] = await Promise.all([
       this.prisma.user.findMany({
         where,
+        include: { customer: true },
         skip: (currentPage - 1) * itemsPerPage,
         take: itemsPerPage,
       }),
@@ -68,6 +71,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
     const [users, totalItems] = await Promise.all([
       this.prisma.user.findMany({
+        include: { customer: true },
         skip: (currentPage - 1) * itemsPerPage,
         take: itemsPerPage,
       }),
@@ -87,6 +91,7 @@ export class PrismaUsersRepository implements UsersRepository {
       .update({
         where: { id: user.id },
         data: prismaData,
+        include: { customer: true },
       })
       .then((updatedUser) => PrismaUserMapper.toDomain(updatedUser));
   }
@@ -99,7 +104,10 @@ export class PrismaUsersRepository implements UsersRepository {
 
   async create(data: IUser): Promise<IUser> {
     const prismaData = PrismaUserMapper.toPrisma(data);
-    const createdUser = await this.prisma.user.create({ data: prismaData });
+    const createdUser = await this.prisma.user.create({
+      data: prismaData,
+      include: { customer: true },
+    });
 
     return PrismaUserMapper.toDomain(createdUser);
   }

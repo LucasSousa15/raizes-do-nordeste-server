@@ -55,5 +55,12 @@ export interface CreateUserReq {
     status: UserStatus;
     role: UserRole;
     profile?: UserProfile;
-    customerData?: Omit<Customer, 'id'>;
+    customerData?: {
+      cpf: string;
+      consent?: boolean;
+      consentAt?: Date | null;
+      points?: number;
+      createdAt?: Date;
+      updatedAt?: Date;
+    };
 }

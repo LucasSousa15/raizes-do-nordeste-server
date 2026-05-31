@@ -56,8 +56,35 @@ model User {
   role     Role
   status   User_status
   profile  Profile?
+  refreshTokens RefreshToken[]
+  passwordResets PasswordReset[]
 
   customer Customer?
+}
+
+model RefreshToken {
+  id            String   @id @default(uuid())
+  hashed_token  String   @unique
+  userId        String
+  role          Role 
+  expires_at    DateTime
+  created_at    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model PasswordReset {
+  id            String   @id @default(uuid())
+  hashed_token  String   @unique
+  user_id       String
+  expires_at    DateTime
+  created_at    DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
 }
 
 model Customer {

@@ -52,6 +52,27 @@ export class CustomerDataDTO {
   updatedAt!: Date;
 }
 
+export class RegisterCustomerDataDTO {
+  @ApiProperty({ example: '123.456.789-00', description: 'CPF do cliente' })
+  @IsString()
+  @IsNotEmpty()
+  cpf!: string;
+
+  @ApiProperty({ example: true, description: 'Consentimento do cliente' })
+  @IsBoolean()
+  @IsNotEmpty()
+  consent!: boolean;
+
+  @ApiPropertyOptional({
+    example: '2026-05-31T13:30:00.000Z',
+    description: 'Data do consentimento',
+  })
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  consentAt?: Date;
+}
+
 export class AdminUserDTO {
   @ApiProperty({ example: 'John Doe', description: 'Nome completo' })
   @IsString()
@@ -133,4 +154,28 @@ export class CustomerUserDTO {
   @Type(() => CustomerDataDTO)
   @IsDefined()
   customerData!: CustomerDataDTO;
+}
+
+export class RegisterCustomerUserDTO {
+  @ApiProperty({ example: 'John Doe', description: 'Nome completo' })
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @ApiProperty({ example: 'johndoe@example.com', description: 'E-mail' })
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ example: 'password123', description: 'Senha' })
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+
+  @ApiProperty({ type: () => RegisterCustomerDataDTO, description: 'Dados do cliente' })
+  @ValidateNested()
+  @Type(() => RegisterCustomerDataDTO)
+  @IsDefined()
+  customerData!: RegisterCustomerDataDTO;
 }

@@ -31,6 +31,7 @@ export class CreateUserUseCase {
 
     const passwordHash = await bcrypt.hash(data.password, 10);
     const id = crypto.randomUUID();
+    const now = new Date();
 
     const user = await this.userRepository.create({
       id,
@@ -45,11 +46,13 @@ export class CreateUserUseCase {
           ? {
               id: crypto.randomUUID(),
               cpf: data.customerData!.cpf,
-              consent: true,
-              consentAt: new Date(),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              points: 0,
+              consent: data.customerData!.consent ?? true,
+              consentAt:
+                data.customerData!.consentAt ??
+                (data.customerData!.consent === false ? null : now),
+              createdAt: data.customerData!.createdAt ?? now,
+              updatedAt: data.customerData!.updatedAt ?? now,
+              points: data.customerData!.points ?? 0,
             }
           : undefined,
     });

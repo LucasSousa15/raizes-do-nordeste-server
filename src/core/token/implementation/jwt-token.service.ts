@@ -41,4 +41,30 @@ export class JwtTokenService implements TokenService {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
   }
+
+  getRefreshTokenExpiresAt(): Date {
+    const expiresIn =
+      this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '7d';
+
+    return new Date(Date.now() + this.parseExpiresIn(expiresIn));
+  }
+
+  private parseExpiresIn(value: string): number {
+    const match = value.match(/^(\d+)([smhd])$/);
+
+    if (!match) {
+      return 7 * 24 * 60 * 60 * 1000;
+    }
+
+    const amount = Number(match[1]);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000,
+    };
+
+    return amount * multipliers[unit];
+  }
 }

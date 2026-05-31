@@ -2,14 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiNoContentResponse,
   ApiOperation,
@@ -19,7 +23,6 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { CreateUserUseCase } from 'src/modules/accounts/application/use-cases/create-user.use-case';
-import type { CreateUserRes } from 'src/modules/accounts/application/use-cases/create-user.use-case';
 import { DeleteUserUseCase } from 'src/modules/accounts/application/use-cases/delete-users.use-case';
 import { FindUserUseCase } from 'src/modules/accounts/application/use-cases/find-users.use-case';
 import { UpdateUserUseCase } from 'src/modules/accounts/application/use-cases/update-user.user.case';
@@ -29,6 +32,7 @@ import {
   StaffUserDTO,
   CustomerUserDTO,
   CustomerDataDTO,
+  RegisterCustomerUserDTO,
 } from '../dto/create-user.dto';
 import { FindUserDTO } from '../dto/find-user.dto';
 import {
@@ -43,7 +47,16 @@ import {
   UserRole,
   UserStatus,
 } from 'src/modules/accounts/@types/users';
-import { FindUserView, UserViewModel } from '../view-models/user.view-model';
+import {
+  FindUserView,
+  UserView,
+  UserViewModel,
+} from '../view-models/user.view-model';
+import { JwtAuthGuard } from 'src/modules/auth/infra/http/guards/jwt-auth.guard';
+import { PermissionGuard } from 'src/modules/auth/infra/http/guards/permission.guard';
+import { RequirePermission } from 'src/modules/auth/infra/http/decorators/require-permission.decorator';
+import { CurrentUser } from 'src/modules/auth/infra/http/decorators/current-user.decorator';
+import type { AuthenticatedUser } from 'src/modules/auth/infra/http/strategies/jwt-strategy';
 
 @ApiTags('Users')
 @Controller('users')
@@ -56,6 +69,9 @@ export class UsersController {
   ) {}
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermission('read:user')
   @ApiOperation({ summary: 'Find users' })
   async find(@Query() findUserDTO: FindUserDTO): Promise<FindUserView> {
     const { user } = await this.findUserUseCase.execute(findUserDTO);
@@ -65,8 +81,76 @@ export class UsersController {
     };
   }
 
+  @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Find own user by id' })
+  @ApiParam({
+    name: 'id',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'ID do usuario',
+  })
+  async findById(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<{ user: UserView }> {
+    if (currentUser.id !== id && currentUser.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('You can only access your own user data.');
+    }
+
+    const { user } = await this.findUserUseCase.execute({ id });
+
+    if (!user || 'data' in user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    return {
+      user: UserViewModel.toHTTP(user),
+    };
+  }
+
   @Post()
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({ summary: 'Register a new customer' })
+  @ApiBody({
+    type: RegisterCustomerUserDTO,
+    examples: {
+      customer: {
+        summary: 'Customer registration',
+        value: {
+          name: 'John Doe',
+          email: 'johndoe@example.com',
+          password: 'password123',
+          customerData: {
+            cpf: '123.456.789-00',
+            consent: true,
+            consentAt: '2026-05-31T13:30:00.000Z',
+          },
+        },
+      },
+    },
+  })
+  async registerCustomer(
+    @Body() createUserDTO: RegisterCustomerUserDTO,
+  ): Promise<{ user: UserView }> {
+    const { user } = await this.createUserUseCase.execute({
+      name: createUserDTO.name,
+      email: createUserDTO.email,
+      password: createUserDTO.password,
+      role: UserRole.CUSTOMER,
+      status: UserStatus.ACTIVE,
+      customerData: createUserDTO.customerData,
+    });
+
+    return {
+      user: UserViewModel.toHTTP(user),
+    };
+  }
+
+  @Post('management')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermission('create:user')
+  @ApiOperation({ summary: 'Create a new user as admin' })
   @ApiExtraModels(AdminUserDTO, StaffUserDTO, CustomerUserDTO, CustomerDataDTO)
   @ApiBody({
     schema: {
@@ -125,7 +209,7 @@ export class UsersController {
   })
   async create(
     @Body() createUserDTO: AdminUserDTO | StaffUserDTO | CustomerUserDTO,
-  ): Promise<CreateUserRes> {
+  ): Promise<{ user: UserView }> {
     const payload: any = {
       name: createUserDTO.name,
       email: createUserDTO.email,
@@ -139,10 +223,17 @@ export class UsersController {
     if ('customerData' in createUserDTO)
       payload.customerData = (createUserDTO as any).customerData;
 
-    return this.createUserUseCase.execute(payload);
+    const { user } = await this.createUserUseCase.execute(payload);
+
+    return {
+      user: UserViewModel.toHTTP(user),
+    };
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermission('update:user')
   @ApiOperation({ summary: 'Update a user' })
   @ApiParam({
     name: 'id',
@@ -220,6 +311,9 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermission('delete:user')
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({
