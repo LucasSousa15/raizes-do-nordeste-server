@@ -13,10 +13,12 @@ enum Role {
   STAFF
 }
 
-enum User_status {
+enum UserStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
+
+  @@map("User_status")
 }
 
 enum Profile {
@@ -54,7 +56,7 @@ model User {
   email    String   @unique
   password String
   role     Role
-  status   User_status
+  status   UserStatus
   profile  Profile?
   refreshTokens RefreshToken[]
   passwordResets PasswordReset[]
@@ -110,16 +112,19 @@ model Store {
   stocks StoreStock[]
 
   orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Product {
   id          String  @id @default(uuid())
   name        String
-  description String
+  description String?
   price       Float
   stocks StoreStock[]
 
-  globalStocks GlobalStock[]
+  globalStock GlobalStock?
 
   orderItems OrderItem[]
 
@@ -173,7 +178,7 @@ model GlobalStock {
   id        String  @id @default(uuid())
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int @default(0)
-  productId String
+  productId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

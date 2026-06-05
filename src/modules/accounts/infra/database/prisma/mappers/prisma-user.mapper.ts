@@ -9,12 +9,12 @@ import {
 import type {
   User,
   Role,
-  User_status,
+  UserStatus as PrismaUserStatusType,
   Profile,
   Customer as PrismaCustomer,
   Prisma,
 } from '@prisma/client';
-import { User_status as PrismaUserStatus } from '@prisma/client';
+import { UserStatus as PrismaUserStatus } from '@prisma/client';
 
 const roleDomainToPrisma: Record<UserRole, Role> = {
   [UserRole.ADMIN]: 'ADMIN',
@@ -28,13 +28,13 @@ const rolePrismaToDomain: Record<Role, UserRole> = {
   CUSTOMER: UserRole.CUSTOMER,
 };
 
-const statusDomainToPrisma: Record<UserStatus, User_status> = {
+const statusDomainToPrisma: Record<UserStatus, PrismaUserStatusType> = {
   [UserStatus.ACTIVE]: PrismaUserStatus.ACTIVE,
   [UserStatus.INACTIVE]: PrismaUserStatus.INACTIVE,
   [UserStatus.SUSPENDED]: PrismaUserStatus.SUSPENDED,
 } as const;
 
-const statusPrismaToDomain: Record<User_status, UserStatus> = {
+const statusPrismaToDomain: Record<PrismaUserStatusType, UserStatus> = {
   ACTIVE: UserStatus.ACTIVE,
   INACTIVE: UserStatus.INACTIVE,
   SUSPENDED: UserStatus.SUSPENDED,
@@ -52,15 +52,15 @@ function roleFromPrisma(role: Role): UserRole {
   return mapped;
 }
 
-export function statusToPrisma(status: UserStatus): User_status {
+export function statusToPrisma(status: UserStatus): PrismaUserStatusType {
   const mapped = statusDomainToPrisma[status as UserStatus];
   if (!mapped) throw new Error(`Unknown UserStatus: ${status}`);
   return mapped;
 }
 
-function statusFromPrisma(status: User_status): UserStatus {
-  const mapped = statusPrismaToDomain[status as User_status];
-  if (!mapped) throw new Error(`Unknown Prisma User_status: ${status}`);
+function statusFromPrisma(status: PrismaUserStatusType): UserStatus {
+  const mapped = statusPrismaToDomain[status as PrismaUserStatusType];
+  if (!mapped) throw new Error(`Unknown Prisma UserStatus: ${status}`);
   return mapped;
 }
 

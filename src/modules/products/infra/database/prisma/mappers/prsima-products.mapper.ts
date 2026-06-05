@@ -6,7 +6,7 @@ export class PrismaProductMapper {
     return {
       id: product.id,
       name: product.name,
-      description: product.description ?? '',
+      description: product.description ?? null,
       price: product.price,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
@@ -17,7 +17,7 @@ export class PrismaProductMapper {
     return {
       id: raw.id,
       name: raw.name,
-      description: raw.description,
+      description: raw.description ?? undefined,
       price: raw.price,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

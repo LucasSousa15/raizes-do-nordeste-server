@@ -226,7 +226,7 @@ Relacoes principais para usar no DER:
 - [x] Autorizacao por permissao
 - [ ] Gestao de unidades da rede
 - [ ] Cardapio por unidade
-- [ ] CRUD/consulta de produtos
+ - [x] CRUD/consulta de produtos
 - [ ] Criacao de pedidos
 - [ ] Atualizacao de status do pedido
 - [ ] Cancelamento de pedido
@@ -314,7 +314,7 @@ Status atual:
 ### Ainda faltam
 
 - [ ] `/stores`
-- [ ] `/products`
+ - [x] `/products`
 - [ ] `/stocks`
 - [ ] `/orders`
 - [ ] `/payments`
@@ -394,7 +394,7 @@ O roteiro pede pelo menos 10 cenarios, com positivos e negativos. Minha proposta
 
 - [ ] Criar `.env.example`
 - [ ] Implementar modulo de unidades
-- [ ] Implementar modulo de produtos/cardapio
+- [x] Implementar modulo de produtos/cardapio
 - [ ] Implementar modulo de estoque
 - [ ] Implementar modulo de pedidos
 - [ ] Implementar pagamento mock
