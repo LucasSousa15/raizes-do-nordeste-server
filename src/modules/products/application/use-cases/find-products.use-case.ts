@@ -37,7 +37,7 @@ export class FindProductsUseCase {
             return result;
         }
 
-        const allProducts = await this.productRepository.findAll({ page, limit });
+        const allProducts = await this.productRepository.findMany({ page, limit });
         if (!allProducts || allProducts.data.length === 0) {
             throw new ProductNotFoundError();
         }

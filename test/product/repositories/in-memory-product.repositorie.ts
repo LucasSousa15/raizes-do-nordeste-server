@@ -42,7 +42,7 @@ export class InMemoryProductRepository implements ProductRepository {
         return this.paginate(filteredItems, page, limit);
     }
 
-    async findAll(params: FindProductsReq): Promise<PaginatedProducts> {
+    async findMany(params: FindProductsReq): Promise<PaginatedProducts> {
         let filteredItems = this.items;
 
         if (params.productId) {
