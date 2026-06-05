@@ -1,8 +1,10 @@
+import { Injectable } from "@nestjs/common";
 import { IProduct } from "../../@types/products";
 import { ProductRepository } from "../../domain/repositories/product.repositorie";
 import { InvalidPriceError } from "../errors/invalid-price.error";
 import { RequireProductMissingError } from "../errors/require-product-missing.error";
 
+@Injectable()
 export class CreateProductUseCase {
     constructor(private readonly productRepository: ProductRepository) {}
 

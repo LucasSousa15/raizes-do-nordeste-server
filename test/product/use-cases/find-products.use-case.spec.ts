@@ -1,4 +1,3 @@
-// find-products.use-case.spec.ts
 
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { InMemoryProductRepository } from '../repositories/in-memory-product.repositorie';

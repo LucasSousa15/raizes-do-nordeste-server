@@ -24,7 +24,7 @@ export class Product {
         return this.props.name;
     }
 
-    public get description(): string {
+    public get description(): string | undefined {
         return this.props.description;
     }
 
