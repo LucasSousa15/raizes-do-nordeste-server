@@ -224,7 +224,7 @@ Relacoes principais para usar no DER:
 - [x] Autenticacao/login
 - [x] Perfis/roles
 - [x] Autorizacao por permissao
-- [ ] Gestao de unidades da rede
+- [x] Gestao de unidades da rede
 - [ ] Cardapio por unidade
  - [x] CRUD/consulta de produtos
 - [ ] Criacao de pedidos
@@ -313,7 +313,7 @@ Status atual:
 
 ### Ainda faltam
 
-- [ ] `/stores`
+- [x] `/stores`
  - [x] `/products`
 - [ ] `/stocks`
 - [ ] `/orders`
@@ -393,7 +393,7 @@ O roteiro pede pelo menos 10 cenarios, com positivos e negativos. Minha proposta
 ## Pendencias principais antes da entrega
 
 - [ ] Criar `.env.example`
-- [ ] Implementar modulo de unidades
+- [x] Implementar modulo de unidades
 - [x] Implementar modulo de produtos/cardapio
 - [ ] Implementar modulo de estoque
 - [ ] Implementar modulo de pedidos
