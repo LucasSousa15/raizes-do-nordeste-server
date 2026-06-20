@@ -3,7 +3,9 @@
 /node_modules
 /build
 
-
+Roteiro_extracted.txt
+tmp_requirements.txt
+.venv/
 
 # Logs
 logs
@@ -63,5 +65,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Miscellaneous
 
-Roteiro_extracted.txt
-tmp_requirements.txt
+

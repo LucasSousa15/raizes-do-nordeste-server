@@ -315,7 +315,7 @@ Status atual:
 
 - [x] `/stores`
  - [x] `/products`
-- [x] `/stocks` (domínio, repositórios e casos de uso implementados; controllers/rotas pendentes)
+- [x] `/stocks` 
 - [ ] `/orders`
 - [ ] `/payments`
 - [ ] `/loyalty`
@@ -395,7 +395,7 @@ O roteiro pede pelo menos 10 cenarios, com positivos e negativos. Minha proposta
 - [ ] Criar `.env.example`
 - [x] Implementar modulo de unidades
 - [x] Implementar modulo de produtos/cardapio
-- [x] Implementar modulo de estoque (domínio, repositórios e use-cases implementados; controllers/rotas pendentes)
+- [x] Implementar modulo de estoque
 - [ ] Implementar modulo de pedidos
 - [ ] Implementar pagamento mock
 - [ ] Implementar fidelizacao de forma simples
