@@ -1,24 +1,35 @@
 import { Module } from '@nestjs/common';
 import { StocksController } from './infra/http/controllers/stocks.controller';
-import { PrismaStocksRepository } from './infra/database/prisma/repositories/prisma-stock.repositorie';
-import { StockRepository } from './domain/repositories/stock.repositorie';
-import { CreateStockUseCase } from './application/use-cases/create-stock.use-case';
-import { FindStocksUseCase } from './application/use-cases/find-stocks.use-case';
-import { UpdateStockUseCase } from './application/use-cases/update-stock.use-case';
-import { DeleteStockUseCase } from './application/use-cases/delete-stock.use-case';
+import { PrismaGlobalStockRepository } from './infra/database/prisma/repositories/prisma-global-stock.repositorie';
+import { GlobalStockRepository } from './domain/repositories/global-stock.repositorie';
+import { ProductsModule } from '../products/products.module';
+import { StoresModule } from '../stores/stores.module';
+import { PrismaStoreStockRepository } from './infra/database/prisma/repositories/prisma-store-stock.repositorie';
+import { StoreStockRepository } from './domain/repositories/store-stock.repositorie';
+import { ProductRepository } from '../products/domain/repositories/product.repositorie';
+import { StoreRepository } from '../stores/domain/repositories/store.repositories';
+import { GetGlobalStockUseCase } from './application/use-cases/get-global-stock.use-case';
+import { GetStoreStocksUseCase } from './application/use-cases/get-store-stocks.use-case';
+import { UpdateStoreStockUseCase } from './application/use-cases/update-store-stock.use-case';
+import { TransferGlobalToStoreUseCase } from './application/use-cases/transfer-global-to-store.use-case';
 
 @Module({
   controllers: [StocksController],
   providers: [
-    CreateStockUseCase,
-    FindStocksUseCase,
-    UpdateStockUseCase,
-    DeleteStockUseCase,
     {
-      provide: StockRepository,
-      useClass: PrismaStocksRepository,
+      provide: GlobalStockRepository,
+      useClass: PrismaGlobalStockRepository,
     },
+    {
+      provide: StoreStockRepository,
+      useClass: PrismaStoreStockRepository,
+    },
+    GetGlobalStockUseCase,
+    GetStoreStocksUseCase,
+    UpdateStoreStockUseCase,
+    TransferGlobalToStoreUseCase,
   ],
-  exports: [],
+  exports: [GlobalStockRepository, StoreStockRepository],
+  imports: [ProductsModule, StoresModule],
 })
 export class StocksModule {}

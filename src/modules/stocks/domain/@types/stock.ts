@@ -1,1 +1,0 @@
-// Tipos específicos do domínio para Stock
