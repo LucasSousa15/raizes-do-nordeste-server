@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags, ApiCreatedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags, ApiCreatedResponse, ApiBadRequestResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateStockDto } from '../dto/create-stock.dto';
 import { UpdateStockDto } from '../dto/update-stock.dto';
 import { FindStockDto } from '../dto/find-stock.dto';
@@ -9,8 +9,12 @@ import { GetStoreStocksUseCase } from '../../../application/use-cases/get-store-
 import { UpdateStoreStockUseCase } from '../../../application/use-cases/update-store-stock.use-case';
 import { TransferGlobalToStoreUseCase } from '../../../application/use-cases/transfer-global-to-store.use-case';
 import { GlobalStockRepository } from 'src/modules/stocks/domain/repositories/global-stock.repositorie';
+import { JwtAuthGuard } from 'src/modules/auth/infra/http/guards/jwt-auth.guard';
+import { PermissionGuard } from 'src/modules/auth/infra/http/guards/permission.guard';
+import { RequirePermission } from 'src/modules/auth/infra/http/decorators/require-permission.decorator';
 
 @ApiTags('Stocks')
+@UseGuards(JwtAuthGuard, PermissionGuard)
 @Controller('stocks')
 export class StocksController {
   constructor(
@@ -22,6 +26,8 @@ export class StocksController {
   ) {}
 
   @Post()
+  @ApiBearerAuth()
+  @RequirePermission('create:stock')
   @ApiOperation({ summary: 'Adicionar quantidade de estoque por loja' })
   @ApiBody({ type: CreateStockDto })
   @ApiCreatedResponse({ description: 'Quantidade adicionada com sucesso (por loja)' })
@@ -34,6 +40,8 @@ export class StocksController {
   }
 
   @Get()
+  @ApiBearerAuth()
+  @RequirePermission('list:stocks')
   @ApiOperation({ summary: 'Buscar estoques (global ou por loja, conforme query)' })
   @ApiOkResponse({ description: 'Estoques retornados com sucesso' })
   async find(@Query() query: FindStockDto) {
@@ -52,6 +60,8 @@ export class StocksController {
   }
 
   @Put()
+  @RequirePermission('update:stock')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Ajustar quantidade de estoque por loja (delta)' })
   @ApiBody({ type: UpdateStockDto })
   @ApiOkResponse({ description: 'Estoque ajustado com sucesso' })
@@ -64,6 +74,8 @@ export class StocksController {
   }
 
   @Post('transfer')
+  @ApiBearerAuth()
+  @RequirePermission('update:stock')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Transferir quantidade do estoque global / outro estoque para uma loja' })
   @ApiBody({ schema: { example: { productId: 'pid', storeId: 'destStoreId', quantity: 5, sourceStoreId: 'sourceStoreId' } } })
