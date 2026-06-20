@@ -46,7 +46,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     const refreshToken = req.body.refreshToken;
 
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token was not sent.');
+      throw new UnauthorizedException('Token de refresh não foi enviado.');
     }
 
     const persistedRefreshToken = await this.refreshTokenRepository.findById(
@@ -54,7 +54,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     );
 
     if (!persistedRefreshToken) {
-      throw new UnauthorizedException('Invalid refresh token.');
+      throw new UnauthorizedException('Token de refresh inválido.');
     }
 
     const isRefreshTokenValid = await this.hashProvider.compare(
@@ -63,13 +63,13 @@ export class JwtRefreshStrategy extends PassportStrategy(
     );
 
     if (!isRefreshTokenValid || persistedRefreshToken.expires_at < new Date()) {
-      throw new UnauthorizedException('Invalid refresh token.');
+      throw new UnauthorizedException('Token de refresh inválido.');
     }
 
     const user = await this.usersRepository.findById(payload.sub);
 
     if (!user || user.id !== persistedRefreshToken.userId) {
-      throw new UnauthorizedException('Invalid refresh token.');
+      throw new UnauthorizedException('Token de refresh inválido.');
     }
 
     return {

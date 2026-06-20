@@ -1,4 +1,4 @@
-import {  FindProductsReq, IProduct, PaginatedProducts } from "src/modules/products/@types/products";
+import {  FindProductsReq, IProduct, PaginatedProducts } from "src/modules/products/domain/@types/products";
 import { Product } from "src/modules/products/domain/entities/product.entitie";
 import { ProductRepository } from "src/modules/products/domain/repositories/product.repositorie";
 

@@ -33,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.usersRepository.findById(payload.sub);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid access token.');
+      throw new UnauthorizedException('Token de acesso inválido.');
     }
 
     return {

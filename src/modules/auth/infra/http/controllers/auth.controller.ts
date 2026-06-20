@@ -39,8 +39,8 @@ export class AuthController {
 
   @Post('sign-in')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Sign in' })
-  @ApiOkResponse({ description: 'Authenticated successfully' })
+  @ApiOperation({ summary: 'Entrar' })
+  @ApiOkResponse({ description: 'Autenticado com sucesso' })
   async signIn(@Body() signInDTO: SignInDTO): Promise<SignInResponse> {
     return this.signInUseCase.execute(signInDTO);
   }
@@ -48,9 +48,9 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(200)
   @UseGuards(JwtRefreshGuard)
-  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOperation({ summary: 'Atualizar token de acesso' })
   @ApiBody({ type: RefreshTokenDTO })
-  @ApiOkResponse({ description: 'Token refreshed successfully' })
+  @ApiOkResponse({ description: 'Token atualizado com sucesso' })
   async refreshToken(
     @Body() refreshTokenDTO: RefreshTokenDTO,
     @CurrentUser() user: AuthenticatedRefreshUser,
@@ -84,8 +84,8 @@ export class AuthController {
 
   @Post('password-reset')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Create password reset token' })
-  @ApiOkResponse({ description: 'Password reset token created' })
+  @ApiOperation({ summary: 'Criar token de redefinição de senha' })
+  @ApiOkResponse({ description: 'Token de redefinição criado com sucesso' })
   async createPasswordReset(
     @Body() createPasswordResetDTO: CreatePasswordResetDTO,
   ): Promise<CreatePasswordResetResponse> {
@@ -94,8 +94,8 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Reset password' })
-  @ApiNoContentResponse({ description: 'Password reset successfully' })
+  @ApiOperation({ summary: 'Redefinir senha' })
+  @ApiNoContentResponse({ description: 'Senha redefinida com sucesso' })
   async resetPassword(@Body() resetPasswordDTO: ResetPasswordDTO): Promise<void> {
     await this.resetPasswordUseCase.execute(resetPasswordDTO);
   }

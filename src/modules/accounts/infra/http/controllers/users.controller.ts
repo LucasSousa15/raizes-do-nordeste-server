@@ -72,7 +72,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermission('read:user')
-  @ApiOperation({ summary: 'Find users' })
+  @ApiOperation({ summary: 'Buscar usuários' })
   async find(@Query() findUserDTO: FindUserDTO): Promise<FindUserView> {
     const { user } = await this.findUserUseCase.execute(findUserDTO);
 
@@ -84,7 +84,7 @@ export class UsersController {
   @Get(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Find own user by id' })
+  @ApiOperation({ summary: 'Buscar usuário por id' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -95,13 +95,13 @@ export class UsersController {
     @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<{ user: UserView }> {
     if (currentUser.id !== id && currentUser.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('You can only access your own user data.');
+      throw new ForbiddenException('Você só pode acessar os dados do seu próprio usuário.');
     }
 
     const { user } = await this.findUserUseCase.execute({ id });
 
     if (!user || 'data' in user) {
-      throw new NotFoundException('User not found.');
+      throw new NotFoundException('Usuário não encontrado.');
     }
 
     return {
@@ -110,12 +110,12 @@ export class UsersController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Register a new customer' })
+  @ApiOperation({ summary: 'Registrar novo cliente' })
   @ApiBody({
     type: RegisterCustomerUserDTO,
     examples: {
       customer: {
-        summary: 'Customer registration',
+        summary: 'Cadastro de cliente',
         value: {
           name: 'John Doe',
           email: 'johndoe@example.com',
@@ -150,7 +150,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermission('create:user')
-  @ApiOperation({ summary: 'Create a new user as admin' })
+  @ApiOperation({ summary: 'Criar usuário (admin)' })
   @ApiExtraModels(AdminUserDTO, StaffUserDTO, CustomerUserDTO, CustomerDataDTO)
   @ApiBody({
     schema: {
@@ -170,7 +170,7 @@ export class UsersController {
     },
     examples: {
       admin: {
-        summary: 'Admin',
+      summary: 'Administrador',
         value: {
           name: 'John Doe',
           email: 'johndoe@example.com',
@@ -179,7 +179,7 @@ export class UsersController {
         },
       },
       staff: {
-        summary: 'Staff',
+      summary: 'Funcionário',
         value: {
           name: 'John Doe',
           email: 'johndoe@example.com',
@@ -189,7 +189,7 @@ export class UsersController {
         },
       },
       customer: {
-        summary: 'Customer',
+      summary: 'Cliente',
         value: {
           name: 'John Doe',
           email: 'johndoe@example.com',
@@ -234,7 +234,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermission('update:user')
-  @ApiOperation({ summary: 'Update a user' })
+  @ApiOperation({ summary: 'Atualizar usuário' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -315,7 +315,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermission('delete:user')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOperation({ summary: 'Remover usuário' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',

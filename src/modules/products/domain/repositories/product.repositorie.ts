@@ -1,4 +1,4 @@
-import { FindProductsReq, IProduct, PaginatedProducts } from "../../@types/products";
+import { FindProductsReq, IProduct, PaginatedProducts } from "../@types/products";
 import { Product } from "../entities/product.entitie";
 
 export abstract class ProductRepository {

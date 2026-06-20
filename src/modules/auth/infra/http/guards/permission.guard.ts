@@ -37,12 +37,12 @@ export class PermissionGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new UnauthorizedException('User not authenticated.');
+      throw new UnauthorizedException('Usuário não autenticado.');
     }
 
     if (!hasPermission(user.role, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied. Required permission: ${requiredPermission}`,
+        `Acesso negado. Permissão requerida: ${requiredPermission}`,
       );
     }
 

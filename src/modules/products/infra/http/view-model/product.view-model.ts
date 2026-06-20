@@ -1,7 +1,7 @@
 import {
   IProduct,
   PaginatedProducts,
-} from 'src/modules/products/@types/products';
+} from 'src/modules/products/domain/@types/products';
 
 export type ProductView = IProduct;
 

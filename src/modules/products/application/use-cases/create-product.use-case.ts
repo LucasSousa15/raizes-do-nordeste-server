@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { IProduct } from "../../@types/products";
+import { IProduct } from "../../domain/@types/products";
 import { ProductRepository } from "../../domain/repositories/product.repositorie";
 import { InvalidPriceError } from "../errors/invalid-price.error";
 import { RequireProductMissingError } from "../errors/require-product-missing.error";

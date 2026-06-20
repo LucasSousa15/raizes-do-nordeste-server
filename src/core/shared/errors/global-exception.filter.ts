@@ -52,14 +52,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       });
     }
 
-    console.error(
-      '🔥 Unhandled error caught by GlobalExceptionFilter:',
-      exception,
-    );
+    console.error('🔥 Erro não tratado capturado pelo GlobalExceptionFilter:', exception);
 
     return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       statusCode: 500,
-      message: 'Internal server error',
+      message: 'Erro interno do servidor',
     });
   }
 }

@@ -1,4 +1,4 @@
-import { IProduct, PaginatedProducts } from 'src/modules/products/@types/products';
+import { IProduct, PaginatedProducts } from 'src/modules/products/domain/@types/products';
 import type { Prisma, Product as PrismaProduct } from '@prisma/client';
 
 export class PrismaProductMapper {

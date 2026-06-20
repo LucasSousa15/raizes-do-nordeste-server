@@ -1,4 +1,4 @@
-import { IProduct } from "../../@types/products";
+import { IProduct } from "../@types/products";
 
 export class Product {
     private props: IProduct;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from '../../domain/repositories/product.repositorie';
-import { FindProductsReq, PaginatedProducts } from '../../@types/products';
+import { FindProductsReq, PaginatedProducts } from '../../domain/@types/products';
 import { ProductNotFoundError } from '../errors/product-not-found.error';
 
 @Injectable() 

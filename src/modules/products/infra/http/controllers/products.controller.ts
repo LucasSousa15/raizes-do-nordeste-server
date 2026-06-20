@@ -50,7 +50,7 @@ export class ProductsController {
 
   @Get()
   @RequirePermission('list:products')
-  @ApiOperation({ summary: 'Find products' })
+  @ApiOperation({ summary: 'Buscar produtos' })
   @ApiOkResponse({ description: 'Produtos encontrados com sucesso' })
   async find(
     @Query() findProductDTO: FindProductDTO,
@@ -64,7 +64,7 @@ export class ProductsController {
 
   @Get(':id')
   @RequirePermission('read:product')
-  @ApiOperation({ summary: 'Find product by id' })
+  @ApiOperation({ summary: 'Buscar produto por id' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -82,7 +82,7 @@ export class ProductsController {
 
   @Post()
   @RequirePermission('create:product')
-  @ApiOperation({ summary: 'Create a product' })
+  @ApiOperation({ summary: 'Criar produto' })
   @ApiBody({ type: CreateProductDTO })
   @ApiCreatedResponse({ description: 'Produto criado com sucesso' })
   async create(@Body() createProductDTO: CreateProductDTO): Promise<void> {
@@ -92,7 +92,7 @@ export class ProductsController {
   @Patch(':id')
   @RequirePermission('update:product')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Update a product' })
+  @ApiOperation({ summary: 'Atualizar produto' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -110,7 +110,7 @@ export class ProductsController {
   @Delete(':id')
   @RequirePermission('delete:product')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Delete a product' })
+  @ApiOperation({ summary: 'Remover produto' })
   @ApiParam({
     name: 'id',
     example: '123e4567-e89b-12d3-a456-426614174000',

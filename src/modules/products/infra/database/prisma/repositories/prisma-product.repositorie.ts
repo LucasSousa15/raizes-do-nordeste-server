@@ -1,7 +1,7 @@
 import { ProductRepository } from "src/modules/products/domain/repositories/product.repositorie";
 import { PrismaService } from 'src/core/providers/database/models/prisma.service';
-import { IProduct, FindProductsReq, PaginatedProducts } from "src/modules/products/@types/products";
-import { PrismaPaginatedProductsMapper, PrismaProductMapper } from "../mappers/prsima-products.mapper";
+import { IProduct, FindProductsReq, PaginatedProducts } from "src/modules/products/domain/@types/products";
+import { PrismaPaginatedProductsMapper, PrismaProductMapper } from "../mappers/prisma-products.mapper";
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
