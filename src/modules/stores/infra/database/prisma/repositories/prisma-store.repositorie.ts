@@ -47,4 +47,8 @@ export class PrismaStoresRepository implements StoreRepository {
 	delete(id: string): Promise<void> {
 		return this.prisma.store.delete({ where: { id } }).then(() => undefined);
 	}
+
+	hasStock(storeId: string): Promise<boolean> {
+		return this.prisma.storeStock.count({ where: { storeId } }).then((count) => count > 0);
+	}
 }

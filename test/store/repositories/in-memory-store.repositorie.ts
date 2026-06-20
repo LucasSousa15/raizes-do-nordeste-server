@@ -39,5 +39,11 @@ export class InMemoryStoreRepository implements StoreRepository {
         this.items = this.items.filter((item) => item.id !== id);
     }
 
+    async hasStock(storeId: string): Promise<boolean> {
+        // In the in-memory test repository there is no separate stock model,
+        // so always return false (no stock) unless tests simulate it differently.
+        return false;
+    }
+
 
 }

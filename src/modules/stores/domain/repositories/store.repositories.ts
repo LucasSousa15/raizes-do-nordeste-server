@@ -6,4 +6,5 @@ export abstract class StoreRepository {
     abstract findAll(page: number, limit: number): Promise<{ stores: IStore[]; total: number }>;
     abstract update(store: IStore): Promise<void>;
     abstract delete(id: string): Promise<void>;
+    abstract hasStock(storeId: string): Promise<boolean>;
 }

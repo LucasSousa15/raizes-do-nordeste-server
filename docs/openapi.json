@@ -43,6 +43,65 @@
           "users"
         ]
       }
+    },
+    "/stores": {
+      "post": {
+        "operationId": "StoresController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStoreDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Loja criada com sucesso"
+          }
+        },
+        "summary": "Criar loja",
+        "tags": [
+          "Stores"
+        ]
+      }
+    },
+    "/stores/{id}": {
+      "put": {
+        "operationId": "StoresController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Loja atualizada com sucesso"
+          }
+        },
+        "summary": "Atualizar loja",
+        "tags": [
+          "Stores"
+        ]
+      }
     }
   },
   "info": {
@@ -187,7 +246,7 @@
           "consentAt",
           "points",
           "createdAt",
-          "updatedAt"
+            "updatedAt"
         ]
       },
       "CustomerUserDTO": {
@@ -234,6 +293,61 @@
           "role",
           "customerData"
         ]
+      },
+      "AddressDTO": {
+        "type": "object",
+        "properties": {
+          "streetAndNumber": {
+            "type": "string",
+            "example": "Rua das Flores, 123",
+            "description": "Rua e número"
+          },
+          "cep": {
+            "type": "string",
+            "example": "12345-678",
+            "description": "CEP"
+          },
+          "neighborhood": {
+            "type": "string",
+            "example": "Bairro Central",
+            "description": "Bairro"
+          },
+          "city": {
+            "type": "string",
+            "example": "Fortaleza",
+            "description": "Cidade"
+          }
+        },
+        "required": ["streetAndNumber", "cep", "neighborhood", "city"]
+      },
+      "CreateStoreDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Loja do Nordeste",
+            "description": "Nome da loja"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressDTO",
+            "description": "Endereço dividido em campos"
+          }
+        },
+        "required": ["name", "address"]
+      },
+      "UpdateStoreDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Loja Atualizada",
+            "description": "Novo nome da loja"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressDTO",
+            "description": "Novo endereço dividido em campos"
+          }
+        }
       }
     }
   }

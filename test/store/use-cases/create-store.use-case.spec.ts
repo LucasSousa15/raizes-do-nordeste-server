@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { InMemoryStoreRepository } from "../repositories/in-memory-store.repositorie";
 import { CreateStoreUseCase } from "src/modules/stores/application/use-cases/create-store.use-case";
+import { StoreAddressUnavailableError } from "src/modules/stores/application/errors/store-addres-unavailable.error";
 
 
 describe('Create store use case tests', () => {
@@ -27,5 +28,18 @@ describe('Create store use case tests', () => {
 		expect(store.createdAt).toBeInstanceOf(Date);
 	});
 
-});
+	it('should not be able to create a store with the same address', async () => {
+		await createStoreUseCase.execute({
+			name: 'Store 1',
+			address: 'Address 1',
+		});
 
+		await expect(() =>
+			createStoreUseCase.execute({
+				name: 'Store 2',
+				address: 'Address 1',
+			})
+		).rejects.toBeInstanceOf(StoreAddressUnavailableError);
+	});
+
+});
