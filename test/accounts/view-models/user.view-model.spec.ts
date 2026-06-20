@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { UserRole, UserStatus } from 'src/modules/accounts/@types/users';
+import { UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { UserViewModel } from 'src/modules/accounts/infra/http/view-models/user.view-model';
 
 const user = {

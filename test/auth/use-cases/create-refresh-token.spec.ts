@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HashProvider } from 'src/core/providers/cryptography/models/hashing.service';
 import { JwtPayload, TokenService } from 'src/core/token/models/token.service';
-import { UserProfile, UserRole } from 'src/modules/accounts/@types/users';
+import { UserProfile, UserRole } from 'src/modules/accounts/domain/@types/users';
 import { CreateRefreshTokenUseCase } from 'src/modules/auth/application/use-cases/create-refresh-token.use-case';
 import { InMemoryRefreshTokenRepository } from '../repositories/in-memory.refresh-token.repository';
 

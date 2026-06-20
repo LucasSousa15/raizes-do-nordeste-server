@@ -5,7 +5,7 @@ import {
   UserProfile,
   UserRole,
   UserStatus,
-} from 'src/modules/accounts/@types/users';
+} from 'src/modules/accounts/domain/@types/users';
 import { InvalidCredentialsError } from 'src/modules/auth/application/errors/invalid-credentials.error';
 import { CreateRefreshTokenUseCase } from 'src/modules/auth/application/use-cases/create-refresh-token.use-case';
 import { SignInUseCase } from 'src/modules/auth/application/use-cases/sign-in.use-case';

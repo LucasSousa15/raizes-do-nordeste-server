@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from 'src/core/token/models/token.service';
-import { UserStatus } from 'src/modules/accounts/@types/users';
+import { UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
 
 export interface AuthenticatedUser {

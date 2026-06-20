@@ -21,7 +21,8 @@
     "test:cov": "vitest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/vitest --runInBand",
     "db:seed": "prisma db seed",
-    "test:e2e": "vitest run test/**/*.e2e-spec.ts"
+    "test:e2e": "vitest run test/**/*.e2e-spec.ts",
+    "generate:module": "npx ts-node scripts/generate-module.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -57,10 +58,12 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/change-case": "^0.0.30",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.0.0",
+    "change-case": "^5.4.4",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

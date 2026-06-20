@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { HashProvider } from 'src/core/providers/cryptography/models/hashing.service';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
 import { UserNotFoundError } from 'src/modules/accounts/application/errors/user-not-found.error';
-import { ResetPasswordRequest } from '../../@types/auth-types';
+import { ResetPasswordRequest } from '../../domain/@types/auth-types';
 import { PasswordResetRepository } from '../../domain/repositories/password-reset.repositorie';
 import { InvalidPasswordResetTokenError } from '../errors/invalid-password-reset-token.error';
 

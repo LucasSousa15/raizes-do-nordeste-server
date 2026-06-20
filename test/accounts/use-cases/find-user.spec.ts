@@ -5,7 +5,7 @@ import {
   PaginatedUsers,
   UserRole,
   UserStatus,
-} from 'src/modules/accounts/@types/users';
+} from 'src/modules/accounts/domain/@types/users';
 
 let usersRepository: InMemoryUsersRepository;
 let sut: FindUserUseCase;

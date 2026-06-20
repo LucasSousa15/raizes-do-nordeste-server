@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { InMemoryUsersRepository } from "../repositories/in-memory.users.repository";
 import { DeleteUserUseCase } from "src/modules/accounts/application/use-cases/delete-users.use-case";
-import { UserRole, UserStatus } from "src/modules/accounts/@types/users";
+import { UserRole, UserStatus } from "src/modules/accounts/domain/@types/users";
 import { UserNotFoundError } from "src/modules/accounts/application/errors/user-not-found.error";
 
 describe('Delete users tests', () => {

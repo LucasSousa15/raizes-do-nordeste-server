@@ -14,7 +14,7 @@ import {
   IsDefined,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserProfile, UserRole } from 'src/modules/accounts/@types/users';
+import { UserProfile, UserRole } from 'src/modules/accounts/domain/@types/users';
 
 export class CustomerDataDTO {
   @ApiProperty({ example: '123.456.789-00', description: 'CPF do cliente' })

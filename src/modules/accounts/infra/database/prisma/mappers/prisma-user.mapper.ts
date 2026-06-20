@@ -5,7 +5,7 @@ import {
   UserProfile,
   UserRole,
   UserStatus,
-} from 'src/modules/accounts/@types/users';
+} from 'src/modules/accounts/domain/@types/users';
 import type {
   User,
   Role,

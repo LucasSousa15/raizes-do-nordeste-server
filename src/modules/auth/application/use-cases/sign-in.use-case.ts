@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { HashProvider } from 'src/core/providers/cryptography/models/hashing.service';
 import { TokenService } from 'src/core/token/models/token.service';
-import { UserStatus } from 'src/modules/accounts/@types/users';
+import { UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
-import { SignInRequest, SignInResponse } from '../../@types/auth-types';
+import { SignInRequest, SignInResponse } from '../../domain/@types/auth-types';
 import { InvalidCredentialsError } from '../errors/invalid-credentials.error';
 import { CreateRefreshTokenUseCase } from './create-refresh-token.use-case';
 

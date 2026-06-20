@@ -3,7 +3,7 @@ import { UpdateUserUseCase } from 'src/modules/accounts/application/use-cases/up
 import { InMemoryUsersRepository } from '../repositories/in-memory.users.repository';
 import { UserNotFoundError } from 'src/modules/accounts/application/errors/user-not-found.error';
 
-import { UserProfile, UserRole, UserStatus } from 'src/modules/accounts/@types/users';
+import { UserProfile, UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import * as bcrypt from 'bcryptjs';
 import { DataAlreadyUsedError } from 'src/modules/accounts/application/errors/data-already-used.error';
 import { ProfileRequiredError } from 'src/modules/accounts/application/errors/profile-required.error';

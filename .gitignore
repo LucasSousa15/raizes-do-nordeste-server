@@ -3,6 +3,8 @@
 /node_modules
 /build
 
+
+
 # Logs
 logs
 *.log
@@ -58,3 +60,8 @@ docker-compose.yml
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
+
+# Miscellaneous
+
+Roteiro_extracted.txt
+tmp_requirements.txt

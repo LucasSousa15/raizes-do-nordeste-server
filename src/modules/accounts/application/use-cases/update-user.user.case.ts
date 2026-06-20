@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { UserProfile, UserRole, UserStatus } from "../../@types/users";
+import { UserProfile, UserRole, UserStatus } from "../../domain/@types/users";
 import { UsersRepository } from "../../domain/repositories/users.repositories";
 import { UserNotFoundError } from "../errors/user-not-found.error";
 import { DataAlreadyUsedError } from "../errors/data-already-used.error";

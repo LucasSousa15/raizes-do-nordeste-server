@@ -5,7 +5,7 @@ import { UserNotFoundError } from 'src/modules/accounts/application/errors/user-
 import {
   CreatePasswordResetRequest,
   CreatePasswordResetResponse,
-} from '../../@types/auth-types';
+} from '../../domain/@types/auth-types';
 import { PasswordResetRepository } from '../../domain/repositories/password-reset.repositorie';
 
 @Injectable()

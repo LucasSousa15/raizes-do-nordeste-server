@@ -1,4 +1,4 @@
-import { IUser, PaginatedUsers, UserStatus } from '../../@types/users';
+import { IUser, PaginatedUsers, UserStatus } from '../@types/users';
 
 export abstract class UsersRepository {
   abstract create(user: IUser): Promise<IUser>;

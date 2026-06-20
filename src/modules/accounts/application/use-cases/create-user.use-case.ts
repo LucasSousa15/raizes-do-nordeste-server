@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserReq, IUser, UserRole, UserStatus } from '../../@types/users';
+import { CreateUserReq, IUser, UserRole, UserStatus } from '../../domain/@types/users';
 import { UsersRepository } from '../../domain/repositories/users.repositories';
 import { ProfileRequiredError } from '../errors/profile-required.error';
 import * as bcrypt from 'bcrypt';

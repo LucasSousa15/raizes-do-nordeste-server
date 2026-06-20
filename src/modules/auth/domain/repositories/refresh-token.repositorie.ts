@@ -1,4 +1,4 @@
-import { UserRole } from "src/modules/accounts/@types/users";
+import { UserRole } from "src/modules/accounts/domain/@types/users";
 
 export interface RefreshTokenData {
   id: string;

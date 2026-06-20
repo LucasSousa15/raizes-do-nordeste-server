@@ -17,7 +17,7 @@ import {
   UserProfile,
   UserRole,
   UserStatus,
-} from 'src/modules/accounts/@types/users';
+} from 'src/modules/accounts/domain/@types/users';
 
 export class UpdateCustomerDataDTO {
   @ApiProperty({ example: '123.456.789-00', description: 'CPF do cliente' })

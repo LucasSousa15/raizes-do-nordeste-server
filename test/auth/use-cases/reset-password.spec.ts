@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HashProvider } from 'src/core/providers/cryptography/models/hashing.service';
 import { UserNotFoundError } from 'src/modules/accounts/application/errors/user-not-found.error';
-import { UserRole, UserStatus } from 'src/modules/accounts/@types/users';
+import { UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { InvalidPasswordResetTokenError } from 'src/modules/auth/application/errors/invalid-password-reset-token.error';
 import { ResetPasswordUseCase } from 'src/modules/auth/application/use-cases/reset-password.use-case';
 import { InMemoryUsersRepository } from '../../accounts/repositories/in-memory.users.repository';

@@ -2,7 +2,7 @@ import {
   IUser,
   PaginatedUsers,
   UserStatus,
-} from 'src/modules/accounts/@types/users';
+} from 'src/modules/accounts/domain/@types/users';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
 
 export class InMemoryUsersRepository implements UsersRepository {

@@ -1,5 +1,5 @@
 import { RefreshToken, Role } from '@prisma/client';
-import { UserRole } from 'src/modules/accounts/@types/users';
+import { UserRole } from 'src/modules/accounts/domain/@types/users';
 import { RefreshTokenData } from 'src/modules/auth/domain/repositories/refresh-token.repositorie';
 
 const roleDomainToPrisma: Record<UserRole, Role> = {

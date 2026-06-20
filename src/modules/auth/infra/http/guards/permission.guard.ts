@@ -10,7 +10,7 @@ import {
   hasPermission,
   Permission,
 } from 'src/modules/auth/domain/permissions/role-permissions';
-import { UserRole } from 'src/modules/accounts/@types/users';
+import { UserRole } from 'src/modules/accounts/domain/@types/users';
 import { REQUIRE_PERMISSION_KEY } from '../decorators/require-permission.decorator';
 
 interface RequestWithUser {

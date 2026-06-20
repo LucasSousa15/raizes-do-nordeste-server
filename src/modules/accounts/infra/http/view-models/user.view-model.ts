@@ -1,4 +1,4 @@
-import { IUser, PaginatedUsers } from 'src/modules/accounts/@types/users';
+import { IUser, PaginatedUsers } from 'src/modules/accounts/domain/@types/users';
 
 export type UserView = Omit<IUser, 'password'>;
 

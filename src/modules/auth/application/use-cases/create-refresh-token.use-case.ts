@@ -5,7 +5,7 @@ import { TokenService } from 'src/core/token/models/token.service';
 import {
   CreateRefreshTokenRequest,
   CreateRefreshTokenResponse,
-} from '../../@types/auth-types';
+} from '../../domain/@types/auth-types';
 import { RefreshTokenRepository } from '../../domain/repositories/refresh-token.repositorie';
 
 @Injectable()

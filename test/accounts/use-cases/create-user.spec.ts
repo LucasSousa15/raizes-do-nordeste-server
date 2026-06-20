@@ -1,7 +1,7 @@
 import { CreateUserUseCase } from "src/modules/accounts/application/use-cases/create-user.use-case";
 import { InMemoryUsersRepository } from "../repositories/in-memory.users.repository";
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { UserProfile, UserRole, UserStatus, } from "src/modules/accounts/@types/users";
+import { UserProfile, UserRole, UserStatus, } from "src/modules/accounts/domain/@types/users";
 import { ProfileRequiredError } from "src/modules/accounts/application/errors/profile-required.error";
 import { PersonalInfoRequiredError } from "src/modules/accounts/application/errors/personal-info-required.error";
 import { User } from "src/modules/accounts/domain/entities/user.entity";

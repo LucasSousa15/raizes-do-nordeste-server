@@ -16,7 +16,7 @@ import { RefreshTokenRepository } from 'src/modules/auth/domain/repositories/ref
 import {
   CreatePasswordResetResponse,
   SignInResponse,
-} from 'src/modules/auth/@types/auth-types';
+} from 'src/modules/auth/domain/@types/auth-types';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import type { AuthenticatedRefreshUser } from '../strategies/jwt-refresh.strategy';

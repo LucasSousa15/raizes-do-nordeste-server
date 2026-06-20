@@ -1,4 +1,4 @@
-import { IUser } from "../../@types/users";
+import { IUser } from "../@types/users";
 
 export class User {
     private _id: string;

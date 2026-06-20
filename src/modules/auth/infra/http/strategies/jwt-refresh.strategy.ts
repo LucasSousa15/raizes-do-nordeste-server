@@ -5,7 +5,7 @@ import { Strategy, ExtractJwt, StrategyOptionsWithRequest } from 'passport-jwt';
 import { Request } from 'express';
 import { HashProvider } from 'src/core/providers/cryptography/models/hashing.service';
 import { JwtPayload } from 'src/core/token/models/token.service';
-import { UserStatus } from 'src/modules/accounts/@types/users';
+import { UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
 import { RefreshTokenRepository } from 'src/modules/auth/domain/repositories/refresh-token.repositorie';
 import { AuthenticatedUser } from './jwt-strategy';

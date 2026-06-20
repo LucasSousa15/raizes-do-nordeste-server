@@ -1,5 +1,5 @@
 
-import { UserProfile, UserRole } from 'src/modules/accounts/@types/users';
+import { UserProfile, UserRole } from 'src/modules/accounts/domain/@types/users';
 
 export interface SignInRequest {
   email: string;

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserNotFoundError } from 'src/modules/accounts/application/errors/user-not-found.error';
-import { UserRole, UserStatus } from 'src/modules/accounts/@types/users';
+import { UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { CreatePasswordResetUseCase } from 'src/modules/auth/application/use-cases/create-password-reset.use-case';
 import { InMemoryUsersRepository } from '../../accounts/repositories/in-memory.users.repository';
 import { InMemoryPasswordResetRepository } from '../repositories/in-memory.password-reset.repository';

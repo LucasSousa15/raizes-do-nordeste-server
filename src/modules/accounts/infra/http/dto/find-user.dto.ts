@@ -8,7 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { UserStatus } from 'src/modules/accounts/@types/users';
+import { UserStatus } from 'src/modules/accounts/domain/@types/users';
 
 export class FindUserDTO {
   @ApiPropertyOptional({
