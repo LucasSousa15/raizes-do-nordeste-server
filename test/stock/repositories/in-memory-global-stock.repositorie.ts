@@ -12,9 +12,9 @@ export class InMemoryGlobalStockRepository implements GlobalStockRepository {
     constructor(
         private productRepository?: ProductRepository,
     ) {}
-    // GlobalStock is a computed aggregate in the application; per-store operations are not supported here.
+
     async findByStoreId(storeId: string): Promise<IGlobalStock[]> {
-        // Return empty array — global stock is not stored per store in this in-memory implementation.
+
         return [];
     }
 
