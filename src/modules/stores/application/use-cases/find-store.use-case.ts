@@ -21,6 +21,7 @@ export class FindStoreUseCase {
       if (!store) {
         throw new StoreNotFoundError();
       }
+
       return {
         data: [store],
         meta: {
