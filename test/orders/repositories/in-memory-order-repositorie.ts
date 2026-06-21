@@ -17,10 +17,10 @@ export class InMemoryOrderRepository implements OrderRepository {
             id: o.id,
             storeId: o.storeId,
             items: o.items,
-            customerId: (o as any).customerId,
-            channel: (o as any).channel,
+            customerId: o.customerId,
+            channel: o.channel,
             totalAmount: o.totalAmount,
-            status: (o as any).status,
+            status: o.status,
             createdAt: o.createdAt,
             updatedAt: o.updatedAt,
         }));
@@ -70,7 +70,13 @@ export class InMemoryOrderRepository implements OrderRepository {
         let filtered = this.items;
         if (params?.orderId) filtered = filtered.filter(o => o.id === params.orderId);
         if (params?.storeId) filtered = filtered.filter(o => o.storeId === params.storeId);
-        if (params?.customerId) filtered = filtered.filter(o => (o as any).customerId === params.customerId);
+        if (params?.customerId) filtered = filtered.filter(o => o.customerId === params.customerId);
+        if (params?.channel) filtered = filtered.filter(o => o.channel === params.channel);
+        if (params?.status) filtered = filtered.filter(o => o.status === params.status);
+        if (params?.minTotalAmount !== undefined) filtered = filtered.filter(o => o.totalAmount >= params.minTotalAmount!);
+        if (params?.maxTotalAmount !== undefined) filtered = filtered.filter(o => o.totalAmount <= params.maxTotalAmount!);
+        if (params?.createdAtStart !== undefined) filtered = filtered.filter(o => o.createdAt >= params.createdAtStart!);
+        if (params?.createdAtEnd !== undefined) filtered = filtered.filter(o => o.createdAt <= params.createdAtEnd!);
         return this.paginate(filtered, params?.page ?? 1, params?.limit ?? 10);
     }
 
@@ -79,7 +85,7 @@ export class InMemoryOrderRepository implements OrderRepository {
         return order ?? null;
     }
 
-    async update(id: string, data: Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
+    async update(id: string, data: Partial<Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Order> {
         const index = this.items.findIndex((item) => item.id === id);
         if (index === -1) {
             throw new Error('Order not found');

@@ -7,16 +7,39 @@ import { FindOrdersReq, PaginatedOrders, IOrder, OrderChannel, OrderStatus } fro
 import { PrismaService } from 'src/core/providers/database/models/prisma.service';
 import type { Prisma } from '@prisma/client';
 
+const orderInclude = {
+  orderItems: true,
+  customer: { select: { userId: true } },
+} as const;
+
 @Injectable()
 export class PrismaOrdersRepository extends OrderRepository {
   constructor(private prisma: PrismaService) {
     super();
   }
+
+  private async resolveCustomerId(userId: string): Promise<string | null> {
+    const customer = await this.prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    return customer?.id ?? null;
+  }
+
   async createOrder(data: Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
-    const prismaData = PrismaOrdersMapper.toPrismaCreate(data);
+    const customerId = await this.resolveCustomerId(data.customerId);
+    if (!customerId) {
+      throw new Error('Customer record not found for user');
+    }
+
+    const prismaData = PrismaOrdersMapper.toPrismaCreate({
+      ...data,
+      customerId,
+    });
     const prismaOrder = await this.prisma.order.create({
       data: prismaData,
-      include: { orderItems: true },
+      include: orderInclude,
     });
     return PrismaOrdersMapper.toEntity(prismaOrder);
   }
@@ -27,8 +50,12 @@ export class PrismaOrdersRepository extends OrderRepository {
     const skip = (page - 1) * limit;
 
     const where: Prisma.OrderWhereInput = {};
+    if (query.orderId) where.id = query.orderId;
     if (query.storeId) where.storeId = query.storeId;
-    if (query.customerId) where.customerId = query.customerId;
+    if (query.customerId) {
+      const customerId = await this.resolveCustomerId(query.customerId);
+      where.customerId = customerId ?? '__nonexistent__';
+    }
     if (query.channel) where.channel = channelDomainToPrisma[query.channel as OrderChannel];
     if (query.status) where.status = statusDomainToPrisma[query.status as OrderStatus];
 
@@ -47,7 +74,7 @@ export class PrismaOrdersRepository extends OrderRepository {
     }
 
     const [raw, totalItems] = await Promise.all([
-      this.prisma.order.findMany({ where, include: { orderItems: true }, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.order.findMany({ where, include: orderInclude, skip, take: limit, orderBy: { createdAt: 'desc' } }),
       this.prisma.order.count({ where }),
     ]);
 
@@ -63,13 +90,23 @@ export class PrismaOrdersRepository extends OrderRepository {
   }
 
   async findById(id: string): Promise<Order | null> {
-    const prismaOrder = await this.prisma.order.findUnique({ where: { id }, include: { orderItems: true } });
+    const prismaOrder = await this.prisma.order.findUnique({ where: { id }, include: orderInclude });
     return prismaOrder ? PrismaOrdersMapper.toEntity(prismaOrder) : null;
   }
 
-  async update(id: string, data: Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
-    const prismaData = PrismaOrdersMapper.toPrismaUpdate(data);
-    const prismaOrder = await this.prisma.order.update({ where: { id }, data: prismaData, include: { orderItems: true } });
+  async update(id: string, data: Partial<Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Order> {
+    const updateData = { ...data };
+
+    if (updateData.customerId) {
+      const customerId = await this.resolveCustomerId(updateData.customerId);
+      if (!customerId) {
+        throw new Error('Customer record not found for user');
+      }
+      updateData.customerId = customerId;
+    }
+
+    const prismaData = PrismaOrdersMapper.toPrismaUpdate(updateData);
+    const prismaOrder = await this.prisma.order.update({ where: { id }, data: prismaData, include: orderInclude });
     return PrismaOrdersMapper.toEntity(prismaOrder);
   }
 

@@ -109,6 +109,28 @@ export class PrismaUserMapper {
     };
   }
 
+  static toPrismaUpdate(user: IUser): Prisma.UserUpdateInput {
+    return {
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      role: roleToPrisma(user.role),
+      status: statusToPrisma(user.status),
+      profile: profileToPrisma(user.profile),
+      customer: user.customerData
+        ? {
+            update: {
+              cpf: user.customerData.cpf,
+              consent: user.customerData.consent,
+              consentAt: user.customerData.consentAt,
+              points: user.customerData.points,
+              updatedAt: user.customerData.updatedAt,
+            },
+          }
+        : undefined,
+    };
+  }
+
   static toDomain(raw: User & { customer?: PrismaCustomer | null }): IUser {
     return {
       id: raw.id,

@@ -8,6 +8,7 @@ import { CustomersOnlyError } from '../errors/customers-only.error';
 import { ProductRepository } from 'src/modules/products/domain/repositories/product.repositorie';
 import { StoreStockRepository } from 'src/modules/stocks/domain/repositories/store-stock.repositorie';
 import { InsufficientStockError } from 'src/modules/stocks/application/errors/insufficient-stock.error';
+import { ProductNotFoundError } from 'src/modules/products/application/errors/product-not-found.error';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -26,7 +27,7 @@ export class CreateOrderUseCase {
     const user = await this.usersRepository.findById(data.customerId);
     const isCustomer = user?.role === UserRole.CUSTOMER;
 
-    if (!isCustomer) {
+    if (!isCustomer || !user.customerData) {
       throw new CustomersOnlyError();
     }
 
@@ -35,7 +36,7 @@ export class CreateOrderUseCase {
     for (const item of data.items || []) {
       const product = await this.productRepository.findById(item.productId);
       if (!product) {
-        throw new Error('Product not found');
+        throw new ProductNotFoundError();
       }
 
       const stock = await this.storeStockRepository.findByStoreAndProduct(data.storeId, item.productId);

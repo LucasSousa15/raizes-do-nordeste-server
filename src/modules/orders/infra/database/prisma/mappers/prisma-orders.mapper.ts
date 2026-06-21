@@ -32,8 +32,13 @@ export const statusDomainToPrisma: Record<OrderStatus, PrismaOrderStatus> = {
   [OrderStatus.CANCELLED]: 'CANCELLED',
 };
 
+type PrismaOrderWithRelations = PrismaOrder & {
+  orderItems?: PrismaOrderItem[];
+  customer?: { userId: string };
+};
+
 export class PrismaOrdersMapper {
-  static toDomain(prismaOrder: PrismaOrder & { orderItems?: PrismaOrderItem[] }): IOrder {
+  static toDomain(prismaOrder: PrismaOrderWithRelations): IOrder {
     const items: IOrderItem[] = (prismaOrder.orderItems || []).map((it) => ({
       productId: it.productId,
       quantity: it.quantity,
@@ -44,7 +49,7 @@ export class PrismaOrdersMapper {
       id: prismaOrder.id,
       storeId: prismaOrder.storeId,
       items,
-      customerId: prismaOrder.customerId,
+      customerId: prismaOrder.customer?.userId ?? prismaOrder.customerId,
       channel: channelPrismaToDomain[prismaOrder.channel as PrismaChannel],
       totalAmount: prismaOrder.total,
       status: statusPrismaToDomain[prismaOrder.status as PrismaOrderStatus],
@@ -55,7 +60,7 @@ export class PrismaOrdersMapper {
     return order;
   }
 
-  static toEntity(prismaOrder: PrismaOrder & { orderItems?: PrismaOrderItem[] }): Order {
+  static toEntity(prismaOrder: PrismaOrderWithRelations): Order {
     return Order.fromPrisma(this.toDomain(prismaOrder));
   }
 
@@ -84,7 +89,6 @@ export class PrismaOrdersMapper {
     if (typeof order.totalAmount === 'number') data.total = order.totalAmount;
     if (order.status) data.status = statusDomainToPrisma[order.status as OrderStatus];
     if (order.items) {
-      // Simplest strategy: remove existing items and recreate (unchecked nested input typed as any)
       (data.orderItems as any) = { deleteMany: {}, create: order.items.map((it) => ({ productId: it.productId, quantity: it.quantity, price: it.price })) };
     }
     return data;

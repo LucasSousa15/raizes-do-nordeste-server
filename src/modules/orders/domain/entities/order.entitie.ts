@@ -1,4 +1,4 @@
-import { IOrder, IOrderItem, OrderStatus } from "../@types/order";
+import { IOrder, IOrderItem, OrderChannel, OrderStatus } from "../@types/order";
 
 export class Order {
   private props: IOrder;
@@ -24,12 +24,24 @@ export class Order {
     return this.props.storeId;
   }
 
+  public get customerId(): string {
+    return this.props.customerId;
+  }
+
+  public get channel(): OrderChannel {
+    return this.props.channel;
+  }
+
   public get items(): IOrderItem[] {
     return this.props.items;
   }
 
   public get totalAmount(): number {
     return this.props.totalAmount;
+  }
+
+  public get status(): string {
+    return this.props.status;
   }
 
   public get createdAt(): Date {

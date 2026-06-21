@@ -3,9 +3,12 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { env } from './core/config/env';
+import { GlobalExceptionFilter } from './core/shared/errors/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.useGlobalPipes(new ValidationPipe(
     {

@@ -9,9 +9,10 @@ import { DeleteOrderUseCase } from './application/use-cases/delete-order.use-cas
 import { ProductsModule } from '../products/products.module';
 import { StocksModule } from '../stocks/stocks.module';
 import { UsersModule } from '../accounts/users.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
-  imports: [ProductsModule, StocksModule, UsersModule],
+  imports: [ProductsModule, StocksModule, UsersModule, PaymentsModule],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,

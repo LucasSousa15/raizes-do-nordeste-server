@@ -86,7 +86,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   update(user: IUser): Promise<IUser> {
-    const prismaData = PrismaUserMapper.toPrisma(user);
+    const prismaData = PrismaUserMapper.toPrismaUpdate(user);
     return this.prisma.user
       .update({
         where: { id: user.id },
