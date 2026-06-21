@@ -49,6 +49,11 @@ export const PERMISSIONS = [
   'list:payments',
   'read:own-payments',
 
+  'read:loyalty',
+  'read:own-loyalty',
+  'redeem:loyalty',
+  'redeem:own-loyalty',
+
   'read:reports',
 ] as const;
 
@@ -104,6 +109,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     'list:payments',
     'read:own-payments',
 
+    'read:loyalty',
+    'read:own-loyalty',
+    'redeem:loyalty',
+    'redeem:own-loyalty',
+
     'read:reports',
   ],
 
@@ -153,6 +163,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 
     'create:payment',
     'read:own-payments',
+
+    'read:own-loyalty',
+    'redeem:own-loyalty',
   ],
 };
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { StocksController } from './infra/http/controllers/stocks.controller';
 import { PrismaGlobalStockRepository } from './infra/database/prisma/repositories/prisma-global-stock.repositorie';
 import { GlobalStockRepository } from './domain/repositories/global-stock.repositorie';
@@ -30,6 +30,6 @@ import { TransferGlobalToStoreUseCase } from './application/use-cases/transfer-g
     TransferGlobalToStoreUseCase,
   ],
   exports: [GlobalStockRepository, StoreStockRepository],
-  imports: [ProductsModule, StoresModule],
+  imports: [ProductsModule, forwardRef(() => StoresModule)],
 })
 export class StocksModule {}

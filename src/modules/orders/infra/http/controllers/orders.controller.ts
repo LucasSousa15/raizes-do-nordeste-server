@@ -147,8 +147,7 @@ export class OrdersController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, PermissionGuard)
-  @RequirePermission('update:order')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Atualizar pedido' })
   @ApiParam({
     name: 'id',
@@ -160,11 +159,37 @@ export class OrdersController {
   async update(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<{ order: OrderView }> {
-    const order = await this.updateOrderUseCase.execute(id, updateOrderDto);
+    const orders = await this.findOrdersUseCase.execute({ orderId: id });
+    const [order] = orders.data;
+
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado.');
+    }
+
+    const canUpdateAll = hasPermission(currentUser.role, 'update:order');
+
+    if (updateOrderDto.confirmPayment) {
+      const canConfirmOwn =
+        hasPermission(currentUser.role, 'create:payment') &&
+        order.customerId === currentUser.id;
+
+      if (!canUpdateAll && !canConfirmOwn) {
+        throw new ForbiddenException(
+          'Acesso negado. Permissão requerida: update:order ou create:payment no próprio pedido',
+        );
+      }
+    } else if (!canUpdateAll) {
+      throw new ForbiddenException(
+        'Acesso negado. Permissão requerida: update:order',
+      );
+    }
+
+    const updated = await this.updateOrderUseCase.execute(id, updateOrderDto);
 
     return {
-      order: OrderViewModel.toHTTP(order),
+      order: OrderViewModel.toHTTP(updated),
     };
   }
 

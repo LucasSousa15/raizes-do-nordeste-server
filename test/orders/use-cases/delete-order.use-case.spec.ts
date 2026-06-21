@@ -34,6 +34,6 @@ describe('DeleteOrderUseCase', () => {
   });
 
   it('throws when order does not exist', async () => {
-    await expect(() => sut.execute('missing-order')).rejects.toThrow('Order not found');
+    await expect(() => sut.execute('missing-order')).rejects.toThrow('Pedido não encontrado.');
   });
 });

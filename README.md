@@ -2,15 +2,14 @@
 
 # Raizes do Nordeste - Backend
 
-Backend do projeto **Raizes do Nordeste**, desenvolvido para a atividade pratica de **Projeto Multidisciplinar - Trilha Back-End 2026**.
+Este repositorio e o backend do meu projeto **Raizes do Nordeste**, desenvolvido para a atividade pratica de **Projeto Multidisciplinar - Trilha Back-End 2026**.
 
-A solucao atende uma rede de lanchonetes em expansao, com autenticacao, perfis de acesso, unidades, produtos, estoque por loja, pedidos multicanal, pagamento mock integrado ao fluxo de pedidos e fidelizacao basica (acumulo de pontos).
+A ideia e simular o backend de uma rede de lanchonetes nordestinas em expansao, com usuarios, autenticacao, perfis de acesso, unidades, produtos, estoque por loja, cardapio por unidade, pedidos multicanal, pagamento mock e fidelizacao. Nem tudo esta 100% fechado ainda — este README funciona como uma checklist honesta do que eu ja implementei e do que ainda falta para a entrega.
 
-> Observacao: como o repositorio e publico, nao subir `.env`, senhas, tokens ou credenciais reais.
 
 ---
 
-## Stack
+## Stack que estou usando
 
 - NestJS
 - TypeScript
@@ -50,11 +49,13 @@ Ou, em desenvolvimento:
 npx prisma migrate dev
 ```
 
-4. (Opcional) Popular banco com unidades, produtos e estoque:
+4. (Recomendado) Popular o banco com dados de exemplo:
 
 ```bash
 npm run db:seed
 ```
+
+O seed cria 2 unidades, 10 produtos tipicos nordestinos e estoque por loja, com IDs fixos para facilitar testes.
 
 5. Iniciar a API:
 
@@ -67,17 +68,20 @@ npm run start:dev
 ```text
 API:     http://localhost:3000
 Swagger: http://localhost:3000/docs
+DER:     docs/DER.png
+Testes:  docs/test_plan.md
+Postman: docs/postman/raizes-do-nordeste.postman_collection.json
 ```
 
 ---
 
-## Scripts
+## Scripts uteis
 
 ```bash
 npm run start:dev   # iniciar em desenvolvimento
 npm run build       # compilar
 npm run start:prod  # rodar build
-npm run test        # testes unitarios (Vitest)
+npm run test        # testes unitarios (106 passando)
 npm run test:cov    # cobertura
 npm run test:e2e    # testes e2e
 npm run db:seed     # seed do banco
@@ -87,86 +91,101 @@ npm run format      # prettier
 
 ---
 
-## Mapa de progresso vs roteiro
+## O que eu ja implementei
 
-Legenda: `[x]` implementado | `[~]` parcial | `[ ]` pendente
+### Auth
 
-### 1. Analise e requisitos (20 pts)
+- [x] `POST /auth/sign-in`
+- [x] `POST /auth/refresh-token`
+- [x] `POST /auth/password-reset`
+- [x] `POST /auth/reset-password`
+- [x] `JwtAuthGuard`, `JwtRefreshGuard`, `PermissionGuard`
+- [x] Permissoes por perfil (`ADMIN`, `STAFF`, `CUSTOMER`)
 
-| Requisito do roteiro | Status | Observacao |
-|---|---|---|
-| Cadastro e autenticacao com perfis/roles | [x] | JWT + permissoes por role |
-| Gestao de unidades da rede | [x] | CRUD `/stores` |
-| Cardapio por unidade | [~] | Produtos globais + estoque por loja; falta endpoint de cardapio filtrado por unidade |
-| Criar/atualizar/cancelar pedidos | [x] | CRUD em `/orders` |
-| Controle de estoque por unidade | [x] | `/stocks` com entrada, ajuste e transferencia |
-| Restricao de venda por estoque | [x] | Validado em `CreateOrderUseCase` |
-| Programa de fidelizacao | [~] | Acumulo de pontos apos pagamento aprovado; sem resgate |
-| Promocoes/campanhas | [ ] | Apenas planejado/documentado como futuro |
-| Pagamento mock | [~] | Servico mock + persistencia; sem rota `/payments` dedicada |
-| Multicanalidade (canal de origem) | [x] | Campo `channel` obrigatorio na criacao + filtro `?channel=` na listagem |
-| LGPD minimo | [~] | Consentimento e CPF modelados; falta documentacao de finalidade/base legal |
-| Logs/auditoria | [ ] | Nao implementado |
+### Users
 
-### 2. Modelagem e arquitetura (20 pts)
+- [x] Cadastro publico de cliente (com CPF e consentimento LGPD)
+- [x] CRUD administrativo em `/users` e `/users/management`
+- [x] View model sem expor senha
 
-| Item | Status | Observacao |
-|---|---|---|
-| Arquitetura em camadas (Domain/Application/Infra/API) | [x] | Modulos NestJS com separacao clara |
-| DER no repositorio | [ ] | Schema Prisma pronto; falta imagem/PDF em `docs/` |
-| Diagrama de casos de uso | [ ] | Pendente no PDF final |
-| Diagrama de classes | [ ] | Pendente no PDF final |
-| Diagrama de sequencia/atividade | [ ] | Recomendado no PDF final |
-| Coerencia modelo x implementacao | [x] | Schema Prisma alinhado aos modulos implementados |
+### Stores (unidades)
 
-### 3. Implementacao da API (25 pts)
+- [x] CRUD de unidades
+- [x] `GET /stores/:id/menu` — cardapio da unidade com disponibilidade de estoque
 
-| Item | Status | Observacao |
-|---|---|---|
-| API executavel localmente | [x] | README + migrations + seed |
-| Swagger em `/docs` | [x] | Configurado em `main.ts` |
-| Persistencia real (Prisma) | [x] | Migrations + repositorios |
-| Fluxo critico pedido -> pagamento mock -> status | [x] | Criar pedido, confirmar pagamento mock e atualizar status via `/orders` |
-| Auth JWT + autorizacao por role | [x] | Guards + `PermissionGuard` |
-| Paginacao em listagens | [x] | Pedidos e produtos |
-| Padrão de erro padronizado | [~] | `GlobalExceptionFilter` existe, mas formato difere do template do roteiro |
+### Products e Stocks
 
-### 4. Seguranca, LGPD e auditoria (15 pts)
+- [x] CRUD de produtos
+- [x] Estoque global e por loja
+- [x] Ajuste de quantidade e transferencia entre estoques
+- [x] Validacao de estoque na criacao do pedido
 
-| Item | Status |
-|---|---|
-| Hash de senha (bcrypt) | [x] |
-| JWT access + refresh | [x] |
-| Autorizacao por perfil em rotas | [x] |
-| View models sem expor senha | [x] |
-| Consentimento LGPD no cadastro de cliente | [x] |
-| Documentacao LGPD (finalidade, base legal, retencao) | [ ] |
-| Logs/auditoria de acoes sensiveis | [ ] |
+### Orders (fluxo critico)
 
-### 5. Plano de testes (10 pts)
+- [x] Criar pedido com canal obrigatorio (`channel`)
+- [x] Listar/filtrar pedidos (por canal, status, paginacao)
+- [x] Atualizar status
+- [x] Cancelar pedido
+- [x] Confirmar pagamento mock via `PATCH /orders/:id`
 
-| Item | Status | Observacao |
-|---|---|---|
-| Testes unitarios automatizados | [x] | 99/100 passando (1 falha de mensagem em delete-order) |
-| Minimo 10 cenarios documentados | [ ] | Proposta abaixo; falta `docs/test_plan.md` |
-| Colecao Postman/Insomnia | [ ] | Pendente |
-| Cobertura auth 401/403, validacao, estoque, pagamento negado | [~] | Coberta parcialmente nos testes unitarios |
+### Payments
 
-### 6. Entrega tecnica e documentacao (10 pts)
+- [x] Servico mock com persistencia (request/response JSON)
+- [x] Integrado ao fluxo de pedidos (nao criei rota `/payments` separada de proposito)
 
-| Item | Status |
-|---|---|
-| Repositorio Git com historico de commits | [x] |
-| README reprodutivel | [~] |
-| `.env.example` | [x] |
-| DER (imagem/PDF) | [ ] |
-| Colecao Postman/Insomnia | [ ] |
-| PDF final ABNT | [ ] |
-| `docs/openapi.json` atualizado | [~] |
+### Loyalty (fidelizacao)
+
+- [x] Acumulo de pontos apos pagamento aprovado (10% do total)
+- [x] `GET /loyalty/balance` — consultar saldo
+- [x] `POST /loyalty/redeem` — resgate simples (exige consentimento)
+
+### Infraestrutura e entrega tecnica
+
+- [x] Arquitetura em camadas (Domain / Application / Infrastructure / API)
+- [x] Prisma + migrations + seed
+- [x] Swagger em `/docs`
+- [x] `.env.example`
+- [x] DER em `docs/DER.png`
+- [x] Colecao Postman em `docs/postman/`
+- [x] Plano de testes em `docs/test_plan.md`
+- [x] 106 testes unitarios passando
 
 ---
 
-## Arquitetura
+## O que ainda falta
+
+### Funcionalidades
+
+- [ ] Promocoes/campanhas
+- [ ] Logs/auditoria de acoes sensiveis
+- [ ] Padrao de erro 100% igual ao template do roteiro
+- [ ] Documentacao LGPD completa (finalidade, base legal, retencao)
+- [ ] Testes e2e do fluxo principal
+
+### Entrega academica (PDF)
+
+- [ ] PDF final seguindo ABNT
+- [ ] Diagrama de casos de uso
+- [ ] Diagrama de classes
+- [ ] Diagrama de sequencia/atividade do fluxo critico
+- [ ] Atualizar `docs/openapi.json` exportado do Swagger
+
+---
+
+## Minha estimativa de progresso
+
+| Perspectiva | Estimativa |
+|---|---|
+| Backend tecnico (API rodando) | ~88–90% |
+| Entrega completa do roteiro | ~74–78% |
+
+O codigo ja cobre o MVP. O que mais falta agora e a parte documental do PDF e alguns complementos (promocoes, auditoria, LGPD escrita).
+
+---
+
+## Arquitetura do projeto
+
+Organizei o codigo por modulos, cada um com `domain` → `application` → `infra`:
 
 ```
 src/
@@ -174,103 +193,67 @@ src/
 └── modules/
     ├── accounts/            # usuarios e clientes
     ├── auth/                # login, refresh, reset de senha
-    ├── stores/              # unidades da rede
-    ├── products/            # produtos/cardapio base
+    ├── stores/              # unidades + cardapio
+    ├── products/            # produtos
     ├── stocks/              # estoque global e por loja
-    ├── orders/              # pedidos e cancelamento
-    └── payments/            # pagamento mock (servico interno)
+    ├── orders/              # pedidos
+    ├── payments/            # pagamento mock (servico interno)
+    └── loyalty/             # fidelizacao
 ```
-
-Cada modulo segue: `domain` -> `application` (use cases) -> `infra` (Prisma, HTTP).
 
 ---
 
-## Endpoints implementados
+## Endpoints da API
 
 ### Auth
 
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| POST | `/auth/sign-in` | publico | Login e retorno de tokens |
-| POST | `/auth/refresh-token` | refresh token | Renovar access token |
-| POST | `/auth/password-reset` | publico | Solicitar reset de senha |
-| POST | `/auth/reset-password` | publico | Redefinir senha |
+| Metodo | Rota | Auth |
+|---|---|---|
+| POST | `/auth/sign-in` | publico |
+| POST | `/auth/refresh-token` | refresh token |
+| POST | `/auth/password-reset` | publico |
+| POST | `/auth/reset-password` | publico |
 
 ### Users
 
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| POST | `/users` | publico | Cadastro de cliente |
-| POST | `/users/management` | JWT + permissao | Criar usuario administrativo |
-| GET | `/users` | JWT + permissao | Listar/buscar usuarios |
-| GET | `/users/:id` | JWT + permissao | Buscar por id |
-| PATCH | `/users/:id` | JWT + permissao | Atualizar usuario |
-| DELETE | `/users/:id` | JWT + permissao | Remover usuario |
-
-### Stores (unidades)
-
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| POST | `/stores` | JWT + permissao | Criar unidade |
-| GET | `/stores` | publico | Listar unidades |
-| GET | `/stores/:id` | publico | Buscar unidade |
-| PUT | `/stores/:id` | JWT + permissao | Atualizar unidade |
-| DELETE | `/stores/:id` | JWT + permissao | Remover unidade |
-
-### Products
-
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| GET | `/products` | JWT + permissao | Listar produtos (paginado) |
-| GET | `/products/:id` | JWT + permissao | Buscar produto |
-| POST | `/products` | JWT + permissao | Criar produto |
-| PATCH | `/products/:id` | JWT + permissao | Atualizar produto |
-| DELETE | `/products/:id` | JWT + permissao | Remover produto |
-
-### Stocks
-
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| POST | `/stocks` | JWT + permissao | Adicionar estoque por loja |
-| GET | `/stocks` | JWT + permissao | Consultar estoque global ou por loja |
-| PUT | `/stocks` | JWT + permissao | Ajustar quantidade (delta) |
-| POST | `/stocks/transfer` | JWT + permissao | Transferir entre estoques |
-
-### Orders (fluxo critico)
-
-| Metodo | Rota | Auth | Descricao |
-|---|---|---|---|
-| POST | `/orders` | JWT + `create:order` | Criar pedido (valida estoque e decrementa) |
-| GET | `/orders` | JWT | Listar com filtros (`channel`, `status`, paginacao) |
-| GET | `/orders/:id` | JWT | Buscar pedido |
-| PATCH | `/orders/:id` | JWT + `update:order` | Atualizar status ou confirmar pagamento mock |
-| DELETE | `/orders/:id` | JWT | Cancelar pedido (soft cancel) |
-
-### Payments
-
-| Metodo | Rota | Status |
+| Metodo | Rota | Auth |
 |---|---|---|
-| — | `/payments` | Nao exposto via HTTP; mock acionado por `PATCH /orders/:id` com `confirmPayment: true` |
+| POST | `/users` | publico (cadastro cliente) |
+| POST | `/users/management` | JWT + permissao |
+| GET | `/users` | JWT + permissao |
+| GET | `/users/:id` | JWT |
+| PATCH | `/users/:id` | JWT + permissao |
+| DELETE | `/users/:id` | JWT + permissao |
 
-### Fidelidade / Promocoes
+### Stores
 
-| Recurso | Status |
-|---|---|
-| `/loyalty` | Nao implementado (pontos acumulados internamente apos pagamento) |
-| `/promotions` | Nao implementado |
+| Metodo | Rota | Auth |
+|---|---|---|
+| POST | `/stores` | JWT + permissao |
+| GET | `/stores` | publico |
+| GET | `/stores/:id/menu` | publico |
+| GET | `/stores/:id` | publico |
+| PUT | `/stores/:id` | JWT + permissao |
+| DELETE | `/stores/:id` | JWT + permissao |
+
+### Products, Stocks, Orders, Loyalty
+
+Consulte o Swagger em `/docs` para o detalhe completo de produtos, estoque, pedidos e fidelizacao.
 
 ---
 
-## Fluxo critico: Pedido -> Pagamento mock -> Status
+## Fluxo critico que escolhi
+
+Escolhi o fluxo **Pedido → Pagamento mock → Atualizacao de status**, que e o recomendado no roteiro:
 
 ```text
-1. POST /orders          -> cria pedido (status: pending), valida estoque, debita loja
-2. PATCH /orders/:id     -> { "confirmPayment": true }  -> mock aprova/recusa + registra Payment
-3. PATCH /orders/:id     -> { "status": "shipped" }      -> cozinha/pronto/entregue (manual)
+1. POST /orders          -> cria pedido, valida estoque, debita a loja
+2. PATCH /orders/:id     -> { "confirmPayment": true }  -> mock + pontos de fidelidade
+3. PATCH /orders/:id     -> { "status": "shipped" }      -> atualiza status operacional
 4. DELETE /orders/:id    -> cancela pedido
 ```
 
-Exemplo de criacao de pedido:
+Exemplo de criacao de pedido (IDs do seed):
 
 ```json
 {
@@ -292,15 +275,6 @@ Confirmar pagamento mock:
 }
 ```
 
-Simular pagamento recusado (teste):
-
-```json
-{
-  "confirmPayment": true,
-  "simulatePaymentFailure": true
-}
-```
-
 Filtrar pedidos por canal:
 
 ```text
@@ -311,132 +285,59 @@ GET /orders?channel=online&status=pending&page=1&limit=10
 
 ## Multicanalidade
 
-O requisito tecnico e registrar o canal de origem do pedido e permitir consulta/filtro por canal.
+O roteiro pede registro do canal de origem do pedido. No meu projeto, usei o campo `channel` (nao renomeei para `canalPedido` — no PDF explico que cumpre o mesmo papel).
 
-**Implementado:**
-
-| Aspecto | Status |
+| O que o roteiro pede | Como implementei |
 |---|---|
-| Campo obrigatorio na criacao | [x] `channel` no body do `POST /orders` |
-| Filtro por canal | [x] `GET /orders?channel=` |
-| Persistencia no banco | [x] enum `Channel` no Prisma (`WEB`, `APP`, `TOTEM`, `IN_STORE`, `PICKUP`) |
-| Valores aceitos na API | `online`, `in_store`, `phone` (mapeados para o banco) |
+| Canal obrigatorio na criacao | `channel` no `POST /orders` |
+| Filtro por canal | `GET /orders?channel=` |
+| Persistencia | enum `Channel` no Prisma |
 
-No PDF/documentacao, basta explicar que `channel` cumpre o mesmo papel do `canalPedido` descrito no roteiro — sem necessidade de renomear campos no codigo.
-
----
-
-## Modelo de dados (Prisma)
-
-Entidades principais:
-
-- `User`, `Customer`, `RefreshToken`, `PasswordReset`
-- `Store`, `Product`, `StoreStock`, `GlobalStock`
-- `Order`, `OrderItem`, `Payment`
-
-Enums relevantes no banco:
-
-```prisma
-enum Channel { WEB APP TOTEM IN_STORE PICKUP }
-enum OrderStatus { PENDING IN_KITCHEN READY DELIVERED CANCELLED }
-enum PaymentStatus { PENDING SUCCESS FAILED CANCELLED }
-enum Role { CUSTOMER ADMIN STAFF }
-```
-
-Relacoes principais:
-
-- `User` 1:1 `Customer`
-- `Customer` 1:N `Order`
-- `Store` 1:N `Order` e 1:N `StoreStock`
-- `Order` 1:N `OrderItem` e 1:N `Payment`
+Valores aceitos na API: `online`, `in_store`, `phone`.
 
 ---
 
-## Seed
+## Modelo de dados
 
-O comando `npm run db:seed` cria:
+O schema Prisma esta em `prisma/schema.prisma`. O DER visual esta em `docs/DER.png`.
 
-- 2 unidades (Centro e Praia)
-- 10 produtos tipicos nordestinos
-- Estoque global e estoque por unidade para cada produto
-
-IDs fixos do seed facilitam testes manuais via Swagger/Postman.
+Entidades principais: `User`, `Customer`, `Store`, `Product`, `StoreStock`, `GlobalStock`, `Order`, `OrderItem`, `Payment`.
 
 ---
 
-## Testes automatizados
+## Como testar
+
+### Testes automatizados
 
 ```bash
 npm run test
 ```
 
-Cobertura atual (modulos com testes unitarios):
+### Colecao Postman
 
-- Auth (login, refresh, reset)
-- Users (CRUD)
-- Stores (CRUD)
-- Products (CRUD)
-- Stocks (consulta, ajuste, transferencia)
-- Orders (criar, atualizar com pagamento, buscar, cancelar)
-- Payments (mock service)
+Importe `docs/postman/raizes-do-nordeste.postman_collection.json` e execute na ordem:
 
-Pendencia conhecida: 1 teste falha por mensagem de erro em PT-BR vs string esperada em ingles (`delete-order.use-case.spec.ts`).
+1. **Auth** — cadastrar cliente → login (salva o token automaticamente)
+2. **Stores** — cardapio da unidade
+3. **Orders** — criar → pagar → atualizar status
+4. **Loyalty** — consultar saldo → resgatar pontos
+5. **Erros** — cenarios 401, 403, 409, 422
 
----
-
-## Plano de testes proposto (para documentacao e Postman)
-
-| ID | Cenario | Endpoint | Tipo |
-|---|---|---|---|
-| T01 | Login valido | POST `/auth/sign-in` | positivo |
-| T02 | Login senha invalida | POST `/auth/sign-in` | negativo |
-| T03 | Acesso sem token | GET `/orders` | negativo (401) |
-| T04 | Acesso sem permissao | GET `/products` como CUSTOMER | negativo (403) |
-| T05 | Cadastro cliente valido | POST `/users` | positivo |
-| T06 | Cadastro e-mail duplicado | POST `/users` | negativo (409) |
-| T07 | Criar pedido com canal | POST `/orders` | positivo |
-| T08 | Criar pedido sem canal | POST `/orders` | negativo (422) |
-| T09 | Pedido estoque insuficiente | POST `/orders` | negativo (409) |
-| T10 | Pagamento mock aprovado | PATCH `/orders/:id` | positivo |
-| T11 | Pagamento mock recusado | PATCH `/orders/:id` | negativo |
-| T12 | Cancelar pedido | DELETE `/orders/:id` | positivo |
-| T13 | Listar pedidos por canal | GET `/orders?channel=online` | positivo |
-| T14 | Atualizar status cozinha | PATCH `/orders/:id` | positivo |
-| T15 | Buscar unidade inexistente | GET `/stores/:id` | negativo (404) |
+O plano completo com 16 cenarios esta em `docs/test_plan.md`.
 
 ---
 
-## Proximos passos (prioridade sugerida)
+## Meus proximos passos
 
-Foco em **implementacao e entregaveis tecnicos**, mantendo a nomenclatura atual do projeto.
-
-### Prioridade alta — entregaveis obrigatorios do roteiro
-
-1. **Colecao Postman/Insomnia** — fluxo Auth -> Pedido -> Pagamento mock -> Status, com cenarios de erro (401, 403, 409, 422)
-2. **Plano de testes** — `docs/test_plan.md` com minimo 10 cenarios (6 positivos, 4 negativos)
-3. **DER** — exportar diagrama do schema Prisma para `docs/DER.png` ou `docs/DER.pdf`
-4. **PDF final ABNT** — requisitos, diagramas, endpoints reais, LGPD, testes e conclusao
-5. **Corrigir teste falhando** — `delete-order.use-case.spec.ts` (mensagem PT-BR)
-
-### Prioridade media — requisitos funcionais ainda incompletos
-
-6. **Cardapio por unidade** — endpoint que retorne produtos com disponibilidade da loja (ex.: `GET /stores/:id/menu` ou filtro em `/stocks?storeId=`)
-7. **Fidelizacao** — expor saldo de pontos e resgate simples (acumulo ja existe apos pagamento)
-8. **Promocoes/campanhas** — ao menos regra documentada; endpoint simples se couber no escopo
-9. **Padronizar erros** — enriquecer `GlobalExceptionFilter` com `error`, `details`, `timestamp`, `path`
-10. **Documentar LGPD** — finalidade, base legal, consentimento e retencao (no PDF/README)
-
-### Prioridade baixa — qualidade e rastreabilidade
-
-11. **Logs/auditoria** — registrar criacao/cancelamento de pedido e mudanca de status
-12. **Consulta de pagamentos** — `GET /orders/:id/payments` (opcional; fluxo ja funciona via PATCH)
-13. **Testes e2e** do fluxo principal
-14. **Atualizar `docs/openapi.json`** exportado do Swagger
+1. Montar o **PDF final ABNT** (requisitos, diagramas, LGPD, conclusao)
+2. Desenhar os **diagramas que faltam** (casos de uso, classes, sequencia)
+3. Escrever a **documentacao LGPD** no PDF
+4. (Opcional) promocoes, auditoria e padrao de erro completo
 
 ---
 
 ## Conclusao parcial
 
-O **MVP tecnico do backend ja esta implementado**: auth, CRUDs, estoque, pedidos multicanal, pagamento mock e fidelizacao basica (acumulo de pontos). O fluxo critico **Pedido -> Pagamento mock -> Atualizacao de status** funciona de ponta a ponta.
+A parte de **usuarios, autenticacao, roles, CRUDs, estoque, pedidos, pagamento mock e fidelizacao** ja esta funcionando com persistencia real, Swagger, testes e documentacao tecnica no repositorio.
 
-O que falta agora e majoritariamente **entrega documental e complementos funcionais** (cardapio por unidade, resgate de fidelidade, promocoes, auditoria) — nao renomeacao de campos ou refatoracao de contratos.
+O ponto que ainda pesa mais para fechar a entrega e o **PDF academico** — o backend em si ja da para demonstrar o fluxo completo de ponta a ponta.

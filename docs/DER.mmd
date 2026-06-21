@@ -1,0 +1,69 @@
+erDiagram
+    User ||--o| Customer : has
+    User ||--o{ RefreshToken : has
+    User ||--o{ PasswordReset : has
+    Customer ||--o{ Order : places
+    Store ||--o{ Order : receives
+    Store ||--o{ StoreStock : holds
+    Product ||--o{ StoreStock : stocked_in
+    Product ||--o| GlobalStock : central_stock
+    Product ||--o{ OrderItem : item_of
+    Order ||--o{ OrderItem : contains
+    Order ||--o{ Payment : paid_by
+
+    User {
+        string id
+        string email
+        string role
+        string status
+    }
+
+    Customer {
+        string id
+        string cpf
+        boolean consent
+        int points
+    }
+
+    Store {
+        string id
+        string name
+        string address
+    }
+
+    Product {
+        string id
+        string name
+        float price
+    }
+
+    StoreStock {
+        string storeId
+        string productId
+        int quantity
+    }
+
+    GlobalStock {
+        string productId
+        int quantity
+    }
+
+    Order {
+        string id
+        string channel
+        string status
+        float total
+    }
+
+    OrderItem {
+        string orderId
+        string productId
+        int quantity
+        float price
+    }
+
+    Payment {
+        string orderId
+        string provider
+        string status
+    }

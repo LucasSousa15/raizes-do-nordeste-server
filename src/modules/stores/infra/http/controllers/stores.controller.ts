@@ -4,11 +4,13 @@ import { CreateStoreUseCase } from 'src/modules/stores/application/use-cases/cre
 import { FindStoreUseCase } from 'src/modules/stores/application/use-cases/find-store.use-case';
 import { UpdateStoreUseCase } from 'src/modules/stores/application/use-cases/update-store.use-case';
 import { DeleteStoreUseCase } from 'src/modules/stores/application/use-cases/delete-store.use-case';
+import { GetStoreMenuUseCase } from 'src/modules/stores/application/use-cases/get-store-menu.use-case';
 import { CreateStoreDTO, AddressDTO } from '../dto/create-store.dto';
 import { IStore, FindStoresReq } from 'src/modules/stores/domain/@types/store';
 import { FindStoreDTO } from '../dto/find-store.dto';
 import { UpdateStoreDTO } from '../dto/update-store.dto';
 import { FindStoreView, StoreViewModel } from '../view-models/store.view-model';
+import { StoreMenuViewModel } from '../view-models/store-menu.view-model';
 import { JwtAuthGuard } from 'src/modules/auth/infra/http/guards/jwt-auth.guard';
 import { PermissionGuard } from 'src/modules/auth/infra/http/guards/permission.guard';
 import { RequirePermission } from 'src/modules/auth/infra/http/decorators/require-permission.decorator';
@@ -21,6 +23,7 @@ export class StoresController {
     private readonly findStoreUseCase: FindStoreUseCase,
     private readonly updateStoreUseCase: UpdateStoreUseCase,
     private readonly deleteStoreUseCase: DeleteStoreUseCase,
+    private readonly getStoreMenuUseCase: GetStoreMenuUseCase,
   ) {}
 
   @Post()
@@ -45,6 +48,18 @@ export class StoresController {
     return {
       store: StoreViewModel.toHTTP(stores),
     } as FindStoreView;
+  }
+
+  @Get(':id/menu')
+  @ApiOperation({ summary: 'Consultar cardapio da unidade com disponibilidade' })
+  @ApiParam({ name: 'id', example: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', description: 'ID da loja' })
+  @ApiOkResponse({ description: 'Cardapio retornado com sucesso' })
+  async getMenu(@Param('id') id: string) {
+    const menu = await this.getStoreMenuUseCase.execute(id);
+
+    return {
+      menu: StoreMenuViewModel.toHTTP(menu),
+    };
   }
 
   @Get(':id')
