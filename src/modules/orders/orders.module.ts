@@ -10,9 +10,10 @@ import { ProductsModule } from '../products/products.module';
 import { StocksModule } from '../stocks/stocks.module';
 import { UsersModule } from '../accounts/users.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { PromotionsModule } from '../promotions/promotions.module';
 
 @Module({
-  imports: [ProductsModule, StocksModule, UsersModule, PaymentsModule],
+  imports: [ProductsModule, StocksModule, UsersModule, PaymentsModule, PromotionsModule],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,

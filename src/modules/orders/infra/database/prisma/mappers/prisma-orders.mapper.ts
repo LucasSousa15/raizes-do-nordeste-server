@@ -52,6 +52,8 @@ export class PrismaOrdersMapper {
       customerId: prismaOrder.customer?.userId ?? prismaOrder.customerId,
       channel: channelPrismaToDomain[prismaOrder.channel as PrismaChannel],
       totalAmount: prismaOrder.total,
+      discount: prismaOrder.discount ?? 0,          // novo campo
+      couponCode: prismaOrder.couponCode ?? undefined, // novo campo
       status: statusPrismaToDomain[prismaOrder.status as PrismaOrderStatus],
       createdAt: prismaOrder.createdAt,
       updatedAt: prismaOrder.updatedAt,
@@ -70,6 +72,8 @@ export class PrismaOrdersMapper {
       customerId: order.customerId,
       channel: channelDomainToPrisma[order.channel as OrderChannel],
       total: order.totalAmount,
+      discount: order.discount ?? 0,          // novo campo
+      couponCode: order.couponCode ?? null,   // novo campo
       status: statusDomainToPrisma[order.status as OrderStatus],
       orderItems: {
         create: (order.items || []).map((it) => ({
@@ -87,6 +91,8 @@ export class PrismaOrdersMapper {
     if (order.customerId) data.customerId = order.customerId;
     if (order.channel) data.channel = channelDomainToPrisma[order.channel as OrderChannel];
     if (typeof order.totalAmount === 'number') data.total = order.totalAmount;
+    if (typeof order.discount === 'number') data.discount = order.discount;   // novo campo
+    if (order.couponCode !== undefined) data.couponCode = order.couponCode;  // novo campo
     if (order.status) data.status = statusDomainToPrisma[order.status as OrderStatus];
     if (order.items) {
       (data.orderItems as any) = { deleteMany: {}, create: order.items.map((it) => ({ productId: it.productId, quantity: it.quantity, price: it.price })) };

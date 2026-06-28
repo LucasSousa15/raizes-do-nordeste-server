@@ -171,6 +171,40 @@ async function main() {
       });
     }
   }
+
+  // Seed promotions
+  const promotions = [
+    {
+      code: 'NORDESTE10',
+      discount: 0.10, // 10%
+      isActive: true,
+      expiresAt: new Date('2030-12-31'),
+    },
+    {
+      code: 'CARNAVAL20',
+      discount: 0.20, // 20%
+      isActive: true,
+      expiresAt: new Date('2030-12-31'),
+    },
+    {
+      code: 'EXPIRADO',
+      discount: 0.15,
+      isActive: true,
+      expiresAt: new Date('2020-01-01'), // Expired
+    },
+  ];
+
+  for (const promo of promotions) {
+    await prisma.promotion.upsert({
+      where: { code: promo.code },
+      update: {
+        discount: promo.discount,
+        isActive: promo.isActive,
+        expiresAt: promo.expiresAt,
+      },
+      create: promo,
+    });
+  }
 }
 
 main()

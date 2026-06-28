@@ -111,4 +111,11 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return PrismaUserMapper.toDomain(createdUser);
   }
+
+  async addPoints(userId: string, points: number): Promise<void> {
+  await this.prisma.customer.update({
+    where: { userId },
+    data: { points: { increment: points } },
+  });
+}
 }

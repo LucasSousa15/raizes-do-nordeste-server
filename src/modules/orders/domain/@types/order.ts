@@ -6,6 +6,9 @@ export interface IOrder {
     channel: OrderChannel;
     totalAmount: number;
     status: string;
+    discount: number;
+    couponCode?: string;
+    customerPromotionId?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -59,6 +62,8 @@ export interface FindOrdersReq {
 export interface CreateOrderReq {
     storeId: string;
     items: CreateOrderItemReq[];
+    couponCode?: string;
+    discount?: number;
     customerId: string;
     channel: OrderChannel;
 }

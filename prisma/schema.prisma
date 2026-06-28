@@ -102,6 +102,8 @@ model Customer {
   updatedAt DateTime @updatedAt
 
   orders Order[]
+
+  customerPromotions CustomerPromotion[]
 }
 
 model Store {
@@ -141,10 +143,10 @@ model Order {
   customerId String
   total      Float  @default(0)
   status     OrderStatus @default(PENDING)
+  couponCode String?
+  discount   Float  @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  
 
   orderItems OrderItem[]
   payments   Payment[]
@@ -194,4 +196,35 @@ model Payment {
   responsePayload Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
+
+model Promotion {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  discount  Float
+  isActive  Boolean  @default(true)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  customerPromotions CustomerPromotion[]
+}
+
+model CustomerPromotion {
+  id          String   @id @default(uuid())
+  customer    Customer @relation(fields: [customerId], references: [id])
+  customerId  String
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  promotionId String
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([customerId, promotionId]) 
 }

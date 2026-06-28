@@ -40,6 +40,18 @@ export class Order {
     return this.props.totalAmount;
   }
 
+  public get discount(): number {
+    return this.props.discount;
+  }
+
+  public get couponCode(): string | undefined {
+    return this.props.couponCode;
+  }
+
+  public get customerPromotionId(): string | undefined {
+    return this.props.customerPromotionId;
+  }
+
   public get status(): string {
     return this.props.status;
   }

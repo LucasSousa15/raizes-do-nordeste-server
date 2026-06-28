@@ -9,6 +9,7 @@ export abstract class UsersRepository {
     page?: number,
     limit?: number,
   ): Promise<PaginatedUsers>;
+  abstract addPoints(userId: string, points: number): Promise<void>;
   abstract findMany(page?: number, limit?: number): Promise<PaginatedUsers>;
   abstract update(user: IUser): Promise<IUser>;
   abstract delete(id: string): Promise<void>;

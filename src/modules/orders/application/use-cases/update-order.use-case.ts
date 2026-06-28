@@ -7,6 +7,7 @@ import { PaymentStatus } from 'src/modules/payments/domain/@types/payment';
 import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.repositories';
 import { OrderNotFoundError } from '../errors/order-not-found.error';
 import { PaymentNotApprovedError } from '../errors/payment-not-approved.error';
+import { AuditService } from 'src/modules/audit/application/services/audit.service';
 
 type UpdateOrderReq = {
   status?: OrderStatus;
@@ -20,7 +21,9 @@ export class UpdateOrderUseCase {
     private readonly orderRepository: OrderRepository,
     private readonly paymentService: MockPaymentService,
     private readonly usersRepository: UsersRepository,
+    private readonly auditService: AuditService,
   ) {}
+
 
   async execute(id: string, data: UpdateOrderReq): Promise<Order> {
     const order = await this.orderRepository.findById(id);
@@ -30,7 +33,16 @@ export class UpdateOrderUseCase {
 
     if (!data.confirmPayment) {
       if (!data.status) return order;
-      return this.orderRepository.update(id, { status: data.status });
+
+      const updated = await this.orderRepository.update(id, { status: data.status });
+
+      await this.auditService.logAction(
+        order.customerId,
+        'ORDER_STATUS_UPDATED',
+        { orderId: id, previousStatus: order.status, newStatus: data.status },
+      );
+
+      return updated;
     }
 
     const payment = await this.paymentService.requestPayment({
@@ -41,31 +53,34 @@ export class UpdateOrderUseCase {
     });
 
     if (payment.status !== PaymentStatus.SUCCESS) {
+      await this.auditService.logAction(
+        order.customerId,
+        'PAYMENT_FAILED',
+        { orderId: id, paymentId: payment.id },
+      );
       throw new PaymentNotApprovedError();
     }
 
     await this.addLoyaltyPoints(order.customerId, order.totalAmount);
 
-    return this.orderRepository.update(id, {
+    const updated = await this.orderRepository.update(id, {
       status: OrderStatus.CONFIRMED,
     });
+
+    await this.auditService.logAction(
+      order.customerId,
+      'PAYMENT_APPROVED',
+      { orderId: id, paymentId: payment.id, totalAmount: order.totalAmount },
+    );
+
+    return updated;
   }
 
-  private async addLoyaltyPoints(customerId: string, totalAmount: number): Promise<void> {
-    const user = await this.usersRepository.findById(customerId);
-    if (!user?.customerData) {
-      return;
-    }
-
-    const earnedPoints = Math.floor(totalAmount * 0.1);
-
-    await this.usersRepository.update({
-      ...user,
-      customerData: {
-        ...user.customerData,
-        points: user.customerData.points + earnedPoints,
-        updatedAt: new Date(),
-      },
-    });
+private async addLoyaltyPoints(customerId: string, totalAmount: number): Promise<void> {
+  const earnedPoints = Math.floor(totalAmount * 0.1);
+  if (earnedPoints > 0) {
+    await this.usersRepository.addPoints(customerId, earnedPoints);
   }
 }
+}
+

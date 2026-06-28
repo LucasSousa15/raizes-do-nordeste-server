@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Min,
   ValidateNested,
@@ -59,11 +60,19 @@ export class CreateOrderDto {
 
   @ApiProperty({
     type: [CreateOrderItemDto],
-    description: 'Itens do pedido. O preco e calculado pelo produto cadastrado.',
+    description: 'Itens do pedido. O preço é calculado pelo produto cadastrado.',
   })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items!: CreateOrderItemDto[];
+
+  @ApiPropertyOptional({
+    example: 'DESC10',
+    description: 'Código do cupom promocional (opcional)',
+  })
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
 }
