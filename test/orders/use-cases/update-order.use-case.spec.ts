@@ -3,31 +3,39 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InMemoryUsersRepository } from 'test/accounts/repositories/in-memory.users.repository';
 import { InMemoryOrderRepository } from '../repositories/in-memory-order-repositorie';
 import { InMemoryPaymentRepository } from 'test/payments/repositories/in-memory-payment.repositorie';
+import { InMemoryAuditLogRepository } from 'test/audit/repositories/in-memory.audit-log.repository';
+import { InMemoryIdempotencyKeyRepository } from 'test/idempotency/repositories/in-memory-idempotency-key.repositorie';
 import { MockPaymentService } from 'src/modules/payments/application/services/mock-payment.service';
+import { AuditService } from 'src/modules/audit/application/services/audit.service';
 import { UpdateOrderUseCase } from 'src/modules/orders/application/use-cases/update-order.use-case';
 import { OrderChannel, OrderStatus } from 'src/modules/orders/domain/@types/order';
 import { UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { PaymentStatus } from 'src/modules/payments/domain/@types/payment';
 import { PaymentNotApprovedError } from 'src/modules/orders/application/errors/payment-not-approved.error';
+import { IdempotencyKeyConflictError } from 'src/modules/idempotency/application/errors/idempotency-key-conflict.error';
 
 describe('UpdateOrderUseCase', () => {
   let orderRepo: InMemoryOrderRepository;
   let usersRepo: InMemoryUsersRepository;
   let paymentRepo: InMemoryPaymentRepository;
   let paymentService: MockPaymentService;
+  let auditRepo: InMemoryAuditLogRepository;
+  let idempotencyRepo: InMemoryIdempotencyKeyRepository;
 
   beforeEach(() => {
     orderRepo = new InMemoryOrderRepository();
     usersRepo = new InMemoryUsersRepository();
     paymentRepo = new InMemoryPaymentRepository();
     paymentService = new MockPaymentService(paymentRepo);
+    auditRepo = new InMemoryAuditLogRepository();
+    idempotencyRepo = new InMemoryIdempotencyKeyRepository();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('updates order to in kitchen after approved mock payment and adds loyalty points', async () => {
+  it('updates order to confirmed after approved mock payment and adds loyalty points', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.9);
 
     const user = {
@@ -58,7 +66,13 @@ describe('UpdateOrderUseCase', () => {
       status: OrderStatus.PENDING,
     });
 
-    const sut = new UpdateOrderUseCase(orderRepo, paymentService, usersRepo);
+    const sut = new UpdateOrderUseCase(
+      orderRepo,
+      paymentService,
+      usersRepo,
+      new AuditService(auditRepo),
+      idempotencyRepo,
+    );
 
     const result = await sut.execute(order.id, {
       confirmPayment: true,
@@ -73,6 +87,11 @@ describe('UpdateOrderUseCase', () => {
 
     const updatedUser = await usersRepo.findById('u1');
     expect(updatedUser?.customerData?.points).toBe(25);
+
+    // Audit: PAYMENT_APPROVED + POINTS_EARNED
+    const actions = auditRepo.items.map((l) => l.action);
+    expect(actions).toContain('PAYMENT_APPROVED');
+    expect(actions).toContain('POINTS_EARNED');
   });
 
   it('throws when mock payment is not approved', async () => {
@@ -87,10 +106,18 @@ describe('UpdateOrderUseCase', () => {
       status: OrderStatus.PENDING,
     });
 
-    const sut = new UpdateOrderUseCase(orderRepo, paymentService, usersRepo);
+    const sut = new UpdateOrderUseCase(
+      orderRepo,
+      paymentService,
+      usersRepo,
+      new AuditService(auditRepo),
+      idempotencyRepo,
+    );
 
     await expect(
       sut.execute(order.id, { confirmPayment: true }),
     ).rejects.toBeInstanceOf(PaymentNotApprovedError);
+
+    expect(auditRepo.items.map((l) => l.action)).toContain('PAYMENT_FAILED');
   });
 });

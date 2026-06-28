@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DeleteOrderUseCase } from 'src/modules/orders/application/use-cases/delete-order.use-case';
 import { OrderChannel, OrderStatus } from 'src/modules/orders/domain/@types/order';
@@ -10,7 +10,7 @@ describe('DeleteOrderUseCase', () => {
 
   beforeEach(() => {
     orderRepo = new InMemoryOrderRepository();
-    sut = new DeleteOrderUseCase(orderRepo);
+    sut = new DeleteOrderUseCase(orderRepo, { logAction: vi.fn() } as any);
   });
 
   it('does not delete the order and updates status to cancelled', async () => {
@@ -21,6 +21,7 @@ describe('DeleteOrderUseCase', () => {
       items: [{ productId: 'p1', quantity: 1, price: 100 }],
       totalAmount: 100,
       status: OrderStatus.PENDING,
+      discount: 0
     });
 
     const result = await sut.execute(order.id);

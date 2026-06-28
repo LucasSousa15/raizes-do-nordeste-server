@@ -7,6 +7,7 @@ import { InsufficientPointsError } from '../errors/insufficient-points.error';
 import { LoyaltyCustomersOnlyError } from '../errors/customers-only.error';
 import { PromotionRepository } from 'src/modules/promotions/domain/repositories/promotion.repositorie';
 import { CustomerPromotionRepository } from 'src/modules/promotions/domain/repositories/customer-promotion.repositorie';
+import { AuditService } from 'src/modules/audit/application/services/audit.service';
 
 import { randomUUID } from 'crypto';
 import { PromotionCodeAlreadyExistsError } from '../errors/promotion-code-duplicated.error';
@@ -30,6 +31,7 @@ export class RedeemLoyaltyPointsUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly promotionRepository: PromotionRepository,
     private readonly customerPromotionRepository: CustomerPromotionRepository,
+    private readonly auditService: AuditService,
   ) {}
 
   async execute(data: RedeemLoyaltyPointsReq): Promise<RedeemLoyaltyPointsResult> {
@@ -82,6 +84,14 @@ export class RedeemLoyaltyPointsUseCase {
         points: remainingPoints,
         updatedAt: new Date(),
       },
+    });
+
+    await this.auditService.logAction(user.id, 'POINTS_REDEEMED', {
+      redeemedPoints: data.points,
+      previousPoints: user.customerData.points,
+      remainingPoints,
+      couponCode: promotion.code,
+      promotionId: promotion.id,
     });
 
     try {

@@ -13,6 +13,7 @@ import { PermissionGuard } from 'src/modules/auth/infra/http/guards/permission.g
 import type { AuthenticatedUser } from 'src/modules/auth/infra/http/strategies/jwt-strategy';
 import { GetLoyaltyBalanceUseCase } from '../../../application/use-cases/get-loyalty-balance.use-case';
 import { RedeemLoyaltyPointsUseCase } from '../../../application/use-cases/redeem-loyalty-points.use-case';
+import { GetLoyaltyHistoryUseCase } from '../../../application/use-cases/get-loyalty-history.use-case';
 import { RedeemLoyaltyPointsDto } from '../dto/redeem-loyalty-points.dto';
 
 @ApiTags('Loyalty')
@@ -22,6 +23,7 @@ export class LoyaltyController {
   constructor(
     private readonly getLoyaltyBalanceUseCase: GetLoyaltyBalanceUseCase,
     private readonly redeemLoyaltyPointsUseCase: RedeemLoyaltyPointsUseCase,
+    private readonly getLoyaltyHistoryUseCase: GetLoyaltyHistoryUseCase,
   ) {}
 
   @Get('balance')
@@ -51,5 +53,15 @@ export class LoyaltyController {
     });
 
     return { loyalty: result };
+  }
+
+  @Get('history')
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermission('read:own-loyalty')
+  @ApiOperation({ summary: 'Consultar histórico de pontos do cliente autenticado' })
+  @ApiOkResponse({ description: 'Histórico retornado com sucesso' })
+  async getHistory(@CurrentUser() currentUser: AuthenticatedUser) {
+    const history = await this.getLoyaltyHistoryUseCase.execute(currentUser.id);
+    return { loyalty: { history } };
   }
 }

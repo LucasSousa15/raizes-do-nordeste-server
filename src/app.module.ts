@@ -10,6 +10,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { IdempotencyModule } from './modules/idempotency/idempotency.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuditModule } from './modules/audit/audit.module';
     OrdersModule,
     LoyaltyModule,
     AuditModule,
+    IdempotencyModule,
   ],
 })
 export class AppModule {}

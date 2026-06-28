@@ -226,5 +226,19 @@ model CustomerPromotion {
   used        Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  @@unique([customerId, promotionId]) 
+  @@unique([customerId, promotionId])
+}
+
+model IdempotencyKey {
+  id             String   @id @default(uuid())
+  key            String   @unique
+  orderId        String
+  paymentId      String?  @unique
+  responseStatus Int
+  responseBody   Json?
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@index([orderId])
+  @@index([expiresAt])
 }

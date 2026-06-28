@@ -11,9 +11,17 @@ import { StocksModule } from '../stocks/stocks.module';
 import { UsersModule } from '../accounts/users.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { PromotionsModule } from '../promotions/promotions.module';
+import { IdempotencyModule } from '../idempotency/idempotency.module';
 
 @Module({
-  imports: [ProductsModule, StocksModule, UsersModule, PaymentsModule, PromotionsModule],
+  imports: [
+    ProductsModule,
+    StocksModule,
+    UsersModule,
+    PaymentsModule,
+    PromotionsModule,
+    IdempotencyModule,
+  ],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,

@@ -18,9 +18,12 @@ export class MockPaymentService {
       amount: data.amount,
       customerId: data.customerId,
       metadata: data.metadata ?? {},
+      idempotencyKey: data.idempotencyKey ?? null,
     };
 
-    const approved = data.amount > 0 && !data.simulateFailure && Math.random() >= 0.5;
+    const deterministicOutcome = this.resolveOutcome(data);
+    const approved =
+      !data.simulateFailure && data.amount > 0 && deterministicOutcome;
     const responsePayload = {
       transactionId: crypto.randomUUID(),
       approved,
@@ -35,5 +38,17 @@ export class MockPaymentService {
       requestPayload,
       responsePayload,
     });
+  }
+
+  private resolveOutcome(data: RequestMockPaymentReq): boolean {
+    if (data.simulateFailure || data.amount <= 0) return false;
+
+    const key = data.idempotencyKey;
+    if (typeof key === 'string' && key.length >= 16) {
+      if (key.startsWith('approve-')) return true;
+      if (key.startsWith('reject-')) return false;
+    }
+
+    return Math.random() >= 0.5;
   }
 }

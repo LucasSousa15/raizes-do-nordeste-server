@@ -82,6 +82,15 @@ export class AuthController {
     };
   }
 
+  @Post('logout')
+  @HttpCode(204)
+  @UseGuards(JwtRefreshGuard)
+  @ApiOperation({ summary: 'Encerrar sessão revogando o refresh token atual' })
+  @ApiNoContentResponse({ description: 'Sessão encerrada com sucesso' })
+  async logout(@CurrentUser() user: AuthenticatedRefreshUser): Promise<void> {
+    await this.refreshTokenRepository.delete(user.tokenId);
+  }
+
   @Post('password-reset')
   @HttpCode(200)
   @ApiOperation({ summary: 'Criar token de redefinição de senha' })

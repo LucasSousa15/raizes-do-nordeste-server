@@ -62,4 +62,50 @@ describe('MockPaymentService', () => {
     });
     expect(paymentRepository.items).toHaveLength(1);
   });
+
+  it('approves deterministically when idempotencyKey starts with "approve-"', async () => {
+    const payment = await sut.requestPayment({
+      orderId: 'order-4',
+      amount: 100,
+      idempotencyKey: 'approve-test-12345678',
+    });
+
+    expect(payment.status).toBe(PaymentStatus.SUCCESS);
+    expect(payment.responsePayload).toMatchObject({ approved: true });
+  });
+
+  it('rejects deterministically when idempotencyKey starts with "reject-"', async () => {
+    const payment = await sut.requestPayment({
+      orderId: 'order-5',
+      amount: 100,
+      idempotencyKey: 'reject-test-12345678',
+    });
+
+    expect(payment.status).toBe(PaymentStatus.FAILED);
+    expect(payment.responsePayload).toMatchObject({ approved: false });
+  });
+
+  it('falls back to random outcome when idempotencyKey is missing or unrecognized', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+
+    const payment = await sut.requestPayment({
+      orderId: 'order-6',
+      amount: 100,
+      idempotencyKey: 'unknown-prefix-12345678',
+    });
+
+    expect(payment.status).toBe(PaymentStatus.FAILED);
+  });
+
+  it('falls back to random outcome when idempotencyKey is shorter than 16 chars', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+
+    const payment = await sut.requestPayment({
+      orderId: 'order-7',
+      amount: 100,
+      idempotencyKey: 'approve-short',
+    });
+
+    expect(payment.status).toBe(PaymentStatus.SUCCESS);
+  });
 });

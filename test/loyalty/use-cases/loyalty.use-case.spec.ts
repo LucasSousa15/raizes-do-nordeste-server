@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { UserRole, UserStatus } from 'src/modules/accounts/domain/@types/users';
 import { InMemoryUsersRepository } from 'test/accounts/repositories/in-memory.users.repository';
+import { InMemoryPromotionRepository } from 'test/promotions/repositories/in-memorie-promotions.repositorie';
+import { InMemoryCustomerPromotionRepository } from 'test/promotions/repositories/in-memorie-customer-promotions.repositorie';
+import { InMemoryAuditLogRepository } from 'test/audit/repositories/in-memory.audit-log.repository';
+import { AuditService } from 'src/modules/audit/application/services/audit.service';
 import { GetLoyaltyBalanceUseCase } from 'src/modules/loyalty/application/use-cases/get-loyalty-balance.use-case';
 import { RedeemLoyaltyPointsUseCase } from 'src/modules/loyalty/application/use-cases/redeem-loyalty-points.use-case';
 import { ConsentRequiredError } from 'src/modules/loyalty/application/errors/consent-required.error';
@@ -9,9 +13,15 @@ import { InsufficientPointsError } from 'src/modules/loyalty/application/errors/
 
 describe('Loyalty use cases', () => {
   let usersRepo: InMemoryUsersRepository;
+  let promotionsRepo: InMemoryPromotionRepository;
+  let customerPromotionsRepo: InMemoryCustomerPromotionRepository;
+  let auditRepo: InMemoryAuditLogRepository;
 
   beforeEach(() => {
     usersRepo = new InMemoryUsersRepository();
+    promotionsRepo = new InMemoryPromotionRepository();
+    customerPromotionsRepo = new InMemoryCustomerPromotionRepository();
+    auditRepo = new InMemoryAuditLogRepository();
   });
 
   it('returns loyalty balance for customer', async () => {
@@ -59,7 +69,12 @@ describe('Loyalty use cases', () => {
       },
     } as any);
 
-    const sut = new RedeemLoyaltyPointsUseCase(usersRepo);
+    const sut = new RedeemLoyaltyPointsUseCase(
+      usersRepo,
+      promotionsRepo,
+      customerPromotionsRepo,
+      new AuditService(auditRepo),
+    );
     const result = await sut.execute({ userId: 'u1', points: 20 });
 
     expect(result.redeemedPoints).toBe(20);
@@ -88,7 +103,12 @@ describe('Loyalty use cases', () => {
       },
     } as any);
 
-    const sut = new RedeemLoyaltyPointsUseCase(usersRepo);
+    const sut = new RedeemLoyaltyPointsUseCase(
+      usersRepo,
+      promotionsRepo,
+      customerPromotionsRepo,
+      new AuditService(auditRepo),
+    );
 
     await expect(
       sut.execute({ userId: 'u1', points: 10 }),
@@ -114,7 +134,12 @@ describe('Loyalty use cases', () => {
       },
     } as any);
 
-    const sut = new RedeemLoyaltyPointsUseCase(usersRepo);
+    const sut = new RedeemLoyaltyPointsUseCase(
+      usersRepo,
+      promotionsRepo,
+      customerPromotionsRepo,
+      new AuditService(auditRepo),
+    );
 
     await expect(
       sut.execute({ userId: 'u1', points: 10 }),

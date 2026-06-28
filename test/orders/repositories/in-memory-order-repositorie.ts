@@ -21,6 +21,7 @@ export class InMemoryOrderRepository implements OrderRepository {
             channel: o.channel,
             totalAmount: o.totalAmount,
             status: o.status,
+            discount: o.discount,
             createdAt: o.createdAt,
             updatedAt: o.updatedAt,
         }));
@@ -52,7 +53,11 @@ export class InMemoryOrderRepository implements OrderRepository {
 
     async createOrder(data: Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
         const itemsWithPrice = await this.buildItems(data.items);
-        const totalAmount = itemsWithPrice.reduce((sum, it) => sum + it.price * it.quantity, 0);
+
+        const providedTotalAmount = data.totalAmount;
+        const totalAmount = providedTotalAmount !== undefined
+            ? providedTotalAmount
+            : itemsWithPrice.reduce((sum, it) => sum + it.price * it.quantity, 0);
 
         const orderData: Omit<IOrder, 'id' | 'createdAt' | 'updatedAt'> = {
             ...data,

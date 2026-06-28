@@ -53,6 +53,14 @@ Colecao executavel: [`postman/raizes-do-nordeste.postman_collection.json`](./pos
 | T19 | Cupom marcado como usado apos pedido | (verificar via GET ou banco) | Pedido criado com cupom (T17) | tentar reutilizar o mesmo codigo | 400 | Erros/Cupom ja utilizado |
 | **Auditoria (Logs)** |
 | T20 | Logs de auditoria criados | (consulta direta ao banco) | Executar T07, T10, T12, T13 | SELECT * FROM "AuditLog" | Registros com acoes `ORDER_CREATED`, `PAYMENT_APPROVED`, `ORDER_STATUS_UPDATED` | Evidencia via print do banco |
+| **Logout** |
+| T21 | Logout revoga refresh token | POST `/auth/logout` | Cliente logado (T01) | body com `refreshToken` | 204 e refresh subsequente retorna 401 | Auth/Logout |
+| **Historico de fidelidade** |
+| T22 | Historico de pontos do cliente | GET `/loyalty/history` | Cliente logado com pontos | token cliente | 200 + lista com tipos `EARN`, `REDEEM`, `ORDER_PAID` | Loyalty/Historico |
+| **Idempotencia no pagamento** |
+| T23 | Mesma chave no mesmo pedido nao gera novo pagamento | PATCH `/orders/:id` | Pedido pending | `{ confirmPayment: true, idempotencyKey: "approve-..." }` duas vezes | 200 + 1 unico pagamento na tabela `Payment` | Orders/Idempotencia |
+| T24 | Chave de idempotencia com prefixo `reject-` | PATCH `/orders/:id` | Pedido pending | `{ confirmPayment: true, idempotencyKey: "reject-..." }` | 422 + entrada em `IdempotencyKey` | Orders/Idempotencia rejeitar |
+| T25 | Chave de idempotencia reutilizada em pedidos diferentes | PATCH `/orders/:id` | Duas orders pending | mesma chave em orders diferentes | 409 | Erros/Conflito idempotencia |
 
 ---
 
@@ -68,6 +76,9 @@ Colecao executavel: [`postman/raizes-do-nordeste.postman_collection.json`](./pos
 | Fidelizacao com consentimento e resgate com geracao de cupom | T14, T15, T16 |
 | Promocoes/Cupons (aplicacao de desconto) | T17, T18, T19 |
 | Logs/Auditoria | T20 |
+| Logout | T21 |
+| Historico de fidelidade | T22 |
+| Idempotencia no pagamento | T23, T24, T25 |
 
 ---
 

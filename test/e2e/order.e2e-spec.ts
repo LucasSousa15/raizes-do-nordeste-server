@@ -105,14 +105,13 @@ describe('Fluxo Crítico E2E', () => {
     expect(product).not.toBeNull();
     productId = product!.id;
 
-    // ── Estoque (Admin) ──
+
     await request(app.getHttpServer())
       .post('/stocks')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ storeId, productId, quantity: 50 })
       .expect(201);
 
-    // ── Cliente ──
     await request(app.getHttpServer())
       .post('/users')
       .send({
@@ -133,19 +132,16 @@ describe('Fluxo Crítico E2E', () => {
       .expect(200);
     customerToken = custLogin.body.accessToken;
 
-    // customerUserId = User.id (sub do JWT) — é o mesmo userId do Customer
     const decoded = JSON.parse(
       Buffer.from(custLogin.body.accessToken.split('.')[1], 'base64').toString(),
     );
     customerUserId = decoded.sub;
 
-    // Seed: cliente começa com 100 pontos
     await prisma.customer.update({
       where: { userId: customerUserId },
       data: { points: 100 },
     });
 
-    // ── Resgate de cupom ──
     const redeemRes = await request(app.getHttpServer())
       .post('/loyalty/redeem')
       .set('Authorization', `Bearer ${customerToken}`)
@@ -201,51 +197,32 @@ describe('Fluxo Crítico E2E', () => {
   });
 
   it('T10 - Pagamento aprovado + pontos', async () => {
-    // O mock de pagamento tem aprovação aleatória (50/50). Tentamos até 5x.
-    const maxAttempts = 5;
-    let approved = false;
-    let lastOrderId: string | undefined;
-    let pointsAfter = 0;
+    const created = await request(app.getHttpServer())
+      .post('/orders')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        storeId,
+        customerId: customerUserId,
+        channel: 'online',
+        items: [{ productId, quantity: 1 }],
+      })
+      .expect(201);
+    orderId = created.body.order.id;
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const created = await request(app.getHttpServer())
-        .post('/orders')
-        .set('Authorization', `Bearer ${customerToken}`)
-        .send({
-          storeId,
-          customerId: customerUserId,
-          channel: 'online',
-          items: [{ productId, quantity: 1 }],
-        })
-        .expect(201);
-      lastOrderId = created.body.order.id;
+    const patched = await request(app.getHttpServer())
+      .patch(`/orders/${orderId}`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({ confirmPayment: true, idempotencyKey: 'approve-t10-1234567890' })
+      .expect(200);
 
-      const patched = await request(app.getHttpServer())
-        .patch(`/orders/${lastOrderId}`)
-        .set('Authorization', `Bearer ${customerToken}`)
-        .send({ confirmPayment: true });
-
-      if (patched.status === 200) {
-        approved = true;
-        expect(patched.body.order.status).toBe('confirmed');
-        break;
-      }
-
-      // 422 = pagamento recusado aleatoriamente — tenta de novo com novo pedido
-      expect(patched.status).toBe(422);
-    }
-
-    expect(approved, 'Pagamento nunca foi aprovado após múltiplas tentativas').toBe(true);
+    expect(patched.body.order.status).toBe('confirmed');
 
     // Após aprovação, saldo = 100 - 20 (resgate inicial) + 10 (10% de 100) = 90
     const bal = await request(app.getHttpServer())
       .get('/loyalty/balance')
       .set('Authorization', `Bearer ${customerToken}`)
       .expect(200);
-    pointsAfter = bal.body.loyalty.points;
-    expect(pointsAfter).toBe(90);
-
-    orderId = lastOrderId!;
+    expect(bal.body.loyalty.points).toBe(90);
   });
 
   it('T11 - Pagamento recusado (422)', async () => {
@@ -389,5 +366,78 @@ describe('Fluxo Crítico E2E', () => {
     expect(actions).toContain('PAYMENT_APPROVED');
     expect(actions).toContain('PAYMENT_FAILED');
     expect(actions).toContain('ORDER_STATUS_UPDATED');
+  });
+
+  it('T21 - Histórico de fidelidade retorna eventos do cliente', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/loyalty/history')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .expect(200);
+
+    expect(Array.isArray(res.body.loyalty.history)).toBe(true);
+    expect(res.body.loyalty.history.length).toBeGreaterThan(0);
+
+    const types = res.body.loyalty.history.map(
+      (h: { type: string }) => h.type,
+    );
+    expect(types).toContain('REDEEM');
+    expect(types).toContain('ORDER_PAID');
+  });
+
+  it('T22 - Idempotência: mesma chave no mesmo pedido retorna o estado sem novo pagamento', async () => {
+    const orderRes = await request(app.getHttpServer())
+      .post('/orders')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        storeId,
+        customerId: customerUserId,
+        channel: 'online',
+        items: [{ productId, quantity: 1 }],
+      })
+      .expect(201);
+
+    const key = 'approve-t22-abcdefghijkl';
+    const first = await request(app.getHttpServer())
+      .patch(`/orders/${orderRes.body.order.id}`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({ confirmPayment: true, idempotencyKey: key })
+      .expect(200);
+    expect(first.body.order.status).toBe('confirmed');
+
+    const payments = await prisma.payment.findMany({
+      where: { orderId: orderRes.body.order.id },
+    });
+    expect(payments).toHaveLength(1);
+
+    const replay = await request(app.getHttpServer())
+      .patch(`/orders/${orderRes.body.order.id}`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({ confirmPayment: true, idempotencyKey: key })
+      .expect(200);
+
+    const paymentsAfterReplay = await prisma.payment.findMany({
+      where: { orderId: orderRes.body.order.id },
+    });
+    expect(paymentsAfterReplay).toHaveLength(1);
+    expect(replay.body.order.id).toBe(first.body.order.id);
+  });
+
+  it('T23 - Logout revoga refresh token (próxima refresh falha com 401)', async () => {
+    const signIn = await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .send({ email: 'cliente@e2e.com', password: 'Senha@123' })
+      .expect(200);
+
+    const refreshToken = signIn.body.refreshToken;
+
+    await request(app.getHttpServer())
+      .post('/auth/logout')
+      .send({ refreshToken })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .post('/auth/refresh-token')
+      .send({ refreshToken })
+      .expect(401);
   });
 });

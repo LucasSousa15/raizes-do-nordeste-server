@@ -8,12 +8,17 @@ import { UsersRepository } from 'src/modules/accounts/domain/repositories/users.
 import { OrderNotFoundError } from '../errors/order-not-found.error';
 import { PaymentNotApprovedError } from '../errors/payment-not-approved.error';
 import { AuditService } from 'src/modules/audit/application/services/audit.service';
+import { IdempotencyKeyRepository } from 'src/modules/idempotency/domain/repositories/idempotency-key.repositorie';
+import { IdempotencyKeyConflictError } from 'src/modules/idempotency/application/errors/idempotency-key-conflict.error';
 
 type UpdateOrderReq = {
   status?: OrderStatus;
   confirmPayment?: boolean;
   simulatePaymentFailure?: boolean;
+  idempotencyKey?: string;
 };
+
+const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 @Injectable()
 export class UpdateOrderUseCase {
@@ -22,6 +27,7 @@ export class UpdateOrderUseCase {
     private readonly paymentService: MockPaymentService,
     private readonly usersRepository: UsersRepository,
     private readonly auditService: AuditService,
+    private readonly idempotencyKeyRepository: IdempotencyKeyRepository,
   ) {}
 
 
@@ -45,11 +51,28 @@ export class UpdateOrderUseCase {
       return updated;
     }
 
+    // ── Idempotência ──────────────────────────────────────────────────────
+    if (data.idempotencyKey) {
+      const existing = await this.idempotencyKeyRepository.findByKey(
+        data.idempotencyKey,
+      );
+      if (existing) {
+        if (existing.orderId !== order.id) {
+          throw new IdempotencyKeyConflictError();
+        }
+        // Mesma chave para o mesmo pedido → retorna o estado atual
+        // sem disparar um segundo pagamento.
+        const refreshed = await this.orderRepository.findById(order.id);
+        return refreshed ?? order;
+      }
+    }
+
     const payment = await this.paymentService.requestPayment({
       orderId: order.id,
       amount: order.totalAmount,
       customerId: order.customerId,
       simulateFailure: data.simulatePaymentFailure,
+      idempotencyKey: data.idempotencyKey,
     });
 
     if (payment.status !== PaymentStatus.SUCCESS) {
@@ -58,10 +81,17 @@ export class UpdateOrderUseCase {
         'PAYMENT_FAILED',
         { orderId: id, paymentId: payment.id },
       );
+      await this.recordIdempotency(data.idempotencyKey, order, payment, 422, {
+        error: 'PAYMENT_FAILED',
+        paymentId: payment.id,
+      });
       throw new PaymentNotApprovedError();
     }
 
-    await this.addLoyaltyPoints(order.customerId, order.totalAmount);
+    const earnedPoints = await this.addLoyaltyPoints(
+      order.customerId,
+      order.totalAmount,
+    );
 
     const updated = await this.orderRepository.update(id, {
       status: OrderStatus.CONFIRMED,
@@ -73,14 +103,69 @@ export class UpdateOrderUseCase {
       { orderId: id, paymentId: payment.id, totalAmount: order.totalAmount },
     );
 
+    if (earnedPoints) {
+      await this.auditService.logAction(order.customerId, 'POINTS_EARNED', {
+        orderId: id,
+        paymentId: payment.id,
+        ...earnedPoints,
+      });
+    }
+
+    await this.recordIdempotency(data.idempotencyKey, order, payment, 200, {
+      orderId: updated.id,
+      status: updated.status,
+    });
+
     return updated;
   }
 
-private async addLoyaltyPoints(customerId: string, totalAmount: number): Promise<void> {
-  const earnedPoints = Math.floor(totalAmount * 0.1);
-  if (earnedPoints > 0) {
-    await this.usersRepository.addPoints(customerId, earnedPoints);
+  private async addLoyaltyPoints(
+    customerId: string,
+    totalAmount: number,
+  ): Promise<{
+    previousPoints: number;
+    earnedPoints: number;
+    newPoints: number;
+  } | null> {
+    const earned = Math.floor(totalAmount * 0.1);
+    if (earned <= 0) return null;
+
+    const user = await this.usersRepository.findById(customerId);
+    const previousPoints = user?.customerData?.points ?? 0;
+
+    await this.usersRepository.addPoints(customerId, earned);
+
+    return {
+      previousPoints,
+      earnedPoints: earned,
+      newPoints: previousPoints + earned,
+    };
+  }
+
+  private async recordIdempotency(
+    key: string | undefined,
+    order: Order,
+    payment: { id: string },
+    responseStatus: number,
+    responseBody: Record<string, unknown>,
+  ): Promise<void> {
+    if (!key) return;
+    try {
+      await this.idempotencyKeyRepository.create({
+        key,
+        orderId: order.id,
+        paymentId: payment.id,
+        responseStatus,
+        responseBody,
+        expiresAt: new Date(Date.now() + IDEMPOTENCY_TTL_MS),
+      });
+    } catch (error) {
+      // Corrida: outra request gravou a mesma chave antes de nós.
+      // O cache já carrega a resposta vencedora; não falhamos a operação.
+      if (error instanceof IdempotencyKeyConflictError) {
+        return;
+      }
+      throw error;
+    }
   }
 }
-}
-

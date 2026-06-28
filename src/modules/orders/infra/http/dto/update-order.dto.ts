@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { OrderStatus } from '../../../domain/@types/order';
 
 export class UpdateOrderDto {
@@ -27,4 +27,14 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsBoolean()
   simulatePaymentFailure?: boolean;
+
+  @ApiPropertyOptional({
+    example: 'approve-order-1234567890',
+    description:
+      'Chave de idempotência para o pagamento. Prefixos `approve-` e `reject-` forçam o resultado do mock.',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(16)
+  idempotencyKey?: string;
 }

@@ -26,6 +26,7 @@ export interface RequestMockPaymentReq {
   customerId?: string;
   simulateFailure?: boolean;
   metadata?: Record<string, unknown>;
+  idempotencyKey?: string;
 }
 
 export type CreatePaymentReq = Omit<IPayment, 'id' | 'createdAt' | 'updatedAt'>;

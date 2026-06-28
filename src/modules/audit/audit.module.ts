@@ -14,6 +14,6 @@ import { AuditService } from './application/services/audit.service';
       useClass: PrismaAuditLogRepository,
     },
   ],
-  exports: [AuditService, CreateAuditLogUseCase],
+  exports: [AuditService, CreateAuditLogUseCase, AuditLogRepository],
 })
 export class AuditModule {}
