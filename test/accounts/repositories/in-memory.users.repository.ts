@@ -71,6 +71,13 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
+  async addPoints(userId: string, points: number): Promise<void> {
+    const user = this.items.find(u => u.id === userId);
+    if (user && user.customerData) {
+      user.customerData.points += points;
+    }
+  }
+
   async delete(id: string): Promise<void> {
     const index = this.items.findIndex((item) => item.id === id);
     if (index === -1) {
