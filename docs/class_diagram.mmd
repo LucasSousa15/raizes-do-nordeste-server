@@ -1,0 +1,133 @@
+classDiagram
+    class User {
+        +string id
+        +string name
+        +string email
+        +string password
+        +Role role
+        +UserStatus status
+        +Profile profile
+        +Customer customer
+    }
+
+    class Customer {
+        +string id
+        +string userId
+        +string cpf
+        +boolean consent
+        +Date consentAt
+        +number points
+        +Order[] orders
+        +addPoints(n)
+        +redeemPoints(n)
+    }
+
+    class Store {
+        +string id
+        +string name
+        +string address
+        +StoreStock[] stocks
+    }
+
+    class Product {
+        +string id
+        +string name
+        +string description
+        +number price
+        +StoreStock[] stocks
+        +GlobalStock globalStock
+    }
+
+    class StoreStock {
+        +string id
+        +string storeId
+        +string productId
+        +number quantity
+        +debit(n)
+        +credit(n)
+    }
+
+    class GlobalStock {
+        +string id
+        +string productId
+        +number quantity
+        +debit(n)
+        +credit(n)
+    }
+
+    class Order {
+        +string id
+        +string storeId
+        +string customerId
+        +Channel channel
+        +OrderStatus status
+        +number totalAmount
+        +number discount
+        +string couponCode
+        +OrderItem[] items
+        +Payment[] payments
+        +updateStatus(s)
+        +updateItems(items)
+        +updateTotalAmount(t)
+    }
+
+    class OrderItem {
+        +string id
+        +string productId
+        +number quantity
+        +number price
+    }
+
+    class Payment {
+        +string id
+        +string orderId
+        +string provider
+        +PaymentStatus status
+        +object requestPayload
+        +object responsePayload
+    }
+
+    class Promotion {
+        +string id
+        +string code
+        +number discount
+        +boolean isActive
+        +Date expiresAt
+    }
+
+    class CustomerPromotion {
+        +string id
+        +string customerId
+        +string promotionId
+        +boolean used
+    }
+
+    class AuditLog {
+        +string id
+        +string userId
+        +string action
+        +string details
+        +Date createdAt
+    }
+
+    class IdempotencyKey {
+        +string id
+        +string key
+        +string orderId
+        +string paymentId
+        +number responseStatus
+        +object responseBody
+        +Date expiresAt
+    }
+
+    User "1" --o "0..1" Customer : tem
+    Customer "1" --o "N" Order : faz
+    Store "1" --o "N" Order : recebe
+    Store "1" --o "N" StoreStock : possui
+    Product "1" --o "N" StoreStock : estoque por loja
+    Product "1" --o "0..1" GlobalStock : estoque central
+    Order "1" *-- "N" OrderItem : contem
+    Order "1" --o "N" Payment : gera
+    Order "1" --o "N" IdempotencyKey : protegido por
+    Customer "1" --o "N" CustomerPromotion : recebe
+    Promotion "1" --o "N" CustomerPromotion : aplicado a

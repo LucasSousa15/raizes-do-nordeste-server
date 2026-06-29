@@ -4,8 +4,7 @@
 
 Este repositorio e o backend do meu projeto **Raizes do Nordeste**, desenvolvido para a atividade pratica de **Projeto Multidisciplinar - Trilha Back-End 2026**.
 
-A ideia e simular o backend de uma rede de lanchonetes nordestinas em expansao, com usuarios, autenticacao, perfis de acesso, unidades, produtos, estoque por loja, cardapio por unidade, pedidos multicanal, pagamento mock e fidelizacao. Nem tudo esta 100% fechado ainda — este README funciona como uma checklist honesta do que eu ja implementei e do que ainda falta para a entrega.
-
+A ideia e simular o backend de uma rede de lanchonetes nordestinas em expansao, com usuarios, autenticacao, perfis de acesso, unidades, produtos, estoque por loja, cardapio por unidade, pedidos multicanal, pagamento mock, fidelizacao, promocoes, auditoria de acoes sensiveis e idempotencia no fluxo de pagamento.
 
 ---
 
@@ -69,6 +68,7 @@ npm run start:dev
 API:     http://localhost:3000
 Swagger: http://localhost:3000/docs
 DER:     docs/DER.png
+Diagramas: docs/diagrams.md
 Testes:  docs/test_plan.md
 Postman: docs/postman/raizes-do-nordeste.postman_collection.json
 ```
@@ -81,9 +81,9 @@ Postman: docs/postman/raizes-do-nordeste.postman_collection.json
 npm run start:dev   # iniciar em desenvolvimento
 npm run build       # compilar
 npm run start:prod  # rodar build
-npm run test        # testes unitarios (106 passando)
+npm run test        # testes unitarios (125 passando)
 npm run test:cov    # cobertura
-npm run test:e2e    # testes e2e
+npm run test:e2e    # testes e2e (22 passando, banco isolado)
 npm run db:seed     # seed do banco
 npm run lint        # eslint
 npm run format      # prettier
@@ -97,6 +97,7 @@ npm run format      # prettier
 
 - [x] `POST /auth/sign-in`
 - [x] `POST /auth/refresh-token`
+- [x] `POST /auth/logout` — revoga o refresh token atual
 - [x] `POST /auth/password-reset`
 - [x] `POST /auth/reset-password`
 - [x] `JwtAuthGuard`, `JwtRefreshGuard`, `PermissionGuard`
@@ -127,28 +128,46 @@ npm run format      # prettier
 - [x] Atualizar status
 - [x] Cancelar pedido
 - [x] Confirmar pagamento mock via `PATCH /orders/:id`
+- [x] **Idempotencia** via header `Idempotency-Key` (TTL 24h) — `approve-`/`reject-` para resultado deterministico
 
 ### Payments
 
 - [x] Servico mock com persistencia (request/response JSON)
 - [x] Integrado ao fluxo de pedidos (nao criei rota `/payments` separada de proposito)
+- [x] Resultado deterministico opcional por prefixo da chave de idempotencia
 
 ### Loyalty (fidelizacao)
 
 - [x] Acumulo de pontos apos pagamento aprovado (10% do total)
 - [x] `GET /loyalty/balance` — consultar saldo
 - [x] `POST /loyalty/redeem` — resgate simples (exige consentimento)
+- [x] `GET /loyalty/history` — extrato de movimentacoes (earn/redeem/order paid)
+
+### Promocoes
+
+- [x] Modelo `Promotion` e `CustomerPromotion` com vinculo por cliente
+- [x] Suporte a `couponCode` no pedido (campo persistido)
+
+### Auditoria
+
+- [x] `AuditLog` registra acoes sensiveis (criacao/alteracao de pedido, pagamento aprovado/recusado, pontos ganhos/resgatados)
+
+### Idempotencia
+
+- [x] Tabela `IdempotencyKey` (unique por `key`, com TTL)
+- [x] Repositorio proprio + modulo isolado
+- [x] Replay seguro: mesma chave + mesmo pedido retorna estado atual; chave reusada para outro pedido retorna 409
 
 ### Infraestrutura e entrega tecnica
 
 - [x] Arquitetura em camadas (Domain / Application / Infrastructure / API)
 - [x] Prisma + migrations + seed
 - [x] Swagger em `/docs`
-- [x] `.env.example`
-- [x] DER em `docs/DER.png`
+- [x] `.env.example` e `.env.test`
+- [x] DER em `docs/DER.png` e diagramas Mermaid em `docs/diagrams.md`
 - [x] Colecao Postman em `docs/postman/`
 - [x] Plano de testes em `docs/test_plan.md`
-- [x] 106 testes unitarios passando
+- [x] **125 testes unitarios + 22 testes e2e passando** (banco isolado via `.env.test` + global setup)
 
 ---
 
@@ -156,18 +175,16 @@ npm run format      # prettier
 
 ### Funcionalidades
 
-- [ ] Promocoes/campanhas
-- [ ] Logs/auditoria de acoes sensiveis
-- [ ] Padrao de erro 100% igual ao template do roteiro
-- [ ] Documentacao LGPD completa (finalidade, base legal, retencao)
-- [ ] Testes e2e do fluxo principal
+- [ ] Padrao de erro 100% igual ao template do roteiro (hoje segue um template proprio, ainda nao unificado)
+- [ ] Documentacao LGPD completa (finalidade, base legal, retencao) — parcialmente coberta via `Customer.consent`/`consentAt`
+- [ ] Refinamento das regras das promocoes (aplicacao automatica de desconto)
 
 ### Entrega academica (PDF)
 
 - [ ] PDF final seguindo ABNT
-- [ ] Diagrama de casos de uso
-- [ ] Diagrama de classes
-- [ ] Diagrama de sequencia/atividade do fluxo critico
+- [ ] Diagrama de casos de uso — gerado em `docs/diagrams.md` (Mermaid)
+- [ ] Diagrama de classes — gerado em `docs/diagrams.md` (Mermaid)
+- [ ] Diagrama de sequencia/atividade do fluxo critico — gerado em `docs/diagrams.md` (Mermaid)
 - [ ] Atualizar `docs/openapi.json` exportado do Swagger
 
 ---
@@ -176,10 +193,10 @@ npm run format      # prettier
 
 | Perspectiva | Estimativa |
 |---|---|
-| Backend tecnico (API rodando) | ~88–90% |
-| Entrega completa do roteiro | ~74–78% |
+| Backend tecnico (API rodando) | ~92–94% |
+| Entrega completa do roteiro | ~80–84% |
 
-O codigo ja cobre o MVP. O que mais falta agora e a parte documental do PDF e alguns complementos (promocoes, auditoria, LGPD escrita).
+O codigo ja cobre o MVP mais promocoes, auditoria e idempotencia. O que mais falta agora e a parte documental do PDF e o refinamento de LGPD/promocoes.
 
 ---
 
@@ -189,16 +206,19 @@ Organizei o codigo por modulos, cada um com `domain` → `application` → `infr
 
 ```
 src/
-├── core/                    # config, erros globais, token
+├── core/                    # config, erros globais, token, prisma
 └── modules/
     ├── accounts/            # usuarios e clientes
-    ├── auth/                # login, refresh, reset de senha
+    ├── auth/                # login, refresh, logout, reset de senha
     ├── stores/              # unidades + cardapio
     ├── products/            # produtos
     ├── stocks/              # estoque global e por loja
     ├── orders/              # pedidos
     ├── payments/            # pagamento mock (servico interno)
-    └── loyalty/             # fidelizacao
+    ├── loyalty/             # fidelizacao (saldo, resgate, historico)
+    ├── promotions/          # promocoes e cupons
+    ├── audit/               # logs de acoes sensiveis
+    └── idempotency/         # chaves de idempotencia para pagamento
 ```
 
 ---
@@ -211,6 +231,7 @@ src/
 |---|---|---|
 | POST | `/auth/sign-in` | publico |
 | POST | `/auth/refresh-token` | refresh token |
+| POST | `/auth/logout` | refresh token |
 | POST | `/auth/password-reset` | publico |
 | POST | `/auth/reset-password` | publico |
 
@@ -248,8 +269,9 @@ Escolhi o fluxo **Pedido → Pagamento mock → Atualizacao de status**, que e o
 
 ```text
 1. POST /orders          -> cria pedido, valida estoque, debita a loja
-2. PATCH /orders/:id     -> { "confirmPayment": true }  -> mock + pontos de fidelidade
-3. PATCH /orders/:id     -> { "status": "shipped" }      -> atualiza status operacional
+2. PATCH /orders/:id     -> { "confirmPayment": true }  com header Idempotency-Key
+                            -> mock + pontos de fidelidade (idempotente)
+3. PATCH /orders/:id     -> { "status": "in_kitchen" }   -> atualiza status operacional
 4. DELETE /orders/:id    -> cancela pedido
 ```
 
@@ -259,33 +281,35 @@ Exemplo de criacao de pedido (IDs do seed):
 {
   "storeId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
   "customerId": "uuid-do-usuario-cliente",
-  "channel": "online",
+  "channel": "totem",
   "items": [
     { "productId": "11111111-1111-4111-8111-111111111111", "quantity": 2 }
   ]
 }
 ```
 
-Confirmar pagamento mock:
+Confirmar pagamento mock (idempotente, prefixo `approve-` garante aprovacao):
 
-```json
+```text
+PATCH /orders/:id
+Idempotency-Key: approve-pedido-9001
+
 {
-  "confirmPayment": true,
-  "simulatePaymentFailure": false
+  "confirmPayment": true
 }
 ```
 
 Filtrar pedidos por canal:
 
 ```text
-GET /orders?channel=online&status=pending&page=1&limit=10
+GET /orders?channel=totem&status=pending&page=1&limit=10
 ```
 
 ---
 
 ## Multicanalidade
 
-O roteiro pede registro do canal de origem do pedido. No meu projeto, usei o campo `channel` (nao renomeei para `canalPedido` — no PDF explico que cumpre o mesmo papel).
+O roteiro pede registro do canal de origem do pedido. No meu projeto, usei o campo `channel` (no PDF explico que cumpre o mesmo papel do `canalPedido` citado no roteiro).
 
 | O que o roteiro pede | Como implementei |
 |---|---|
@@ -293,15 +317,29 @@ O roteiro pede registro do canal de origem do pedido. No meu projeto, usei o cam
 | Filtro por canal | `GET /orders?channel=` |
 | Persistencia | enum `Channel` no Prisma |
 
-Valores aceitos na API: `online`, `in_store`, `phone`.
+Valores aceitos na API: `web`, `app`, `totem`, `in_store`, `pickup`.
+
+---
+
+## Idempotencia no pagamento
+
+Para evitar cobrancas duplicadas em retries, o endpoint `PATCH /orders/:id` aceita o header `Idempotency-Key`:
+
+- **Mesma chave + mesmo pedido** → retorna o estado atual do pedido (sem novo pagamento).
+- **Mesma chave + pedido diferente** → retorna `409 IDEMPOTENCY_KEY_CONFLICT`.
+- **Chave com prefixo `approve-`** → pagamento aprovado deterministicamente.
+- **Chave com prefixo `reject-`** → pagamento negado deterministicamente.
+- **Sem chave** → comportamento antigo (50% via `Math.random()`, util para testes locais).
+
+A chave e gravada em `IdempotencyKey` com TTL de 24h; apos o TTL ela e tratada como inexistente.
 
 ---
 
 ## Modelo de dados
 
-O schema Prisma esta em `prisma/schema.prisma`. O DER visual esta em `docs/DER.png`.
+O schema Prisma esta em `prisma/schema.prisma`. O DER visual esta em `docs/DER.png` e os diagramas em Mermaid estao em `docs/diagrams.md`.
 
-Entidades principais: `User`, `Customer`, `Store`, `Product`, `StoreStock`, `GlobalStock`, `Order`, `OrderItem`, `Payment`.
+Entidades principais: `User`, `Customer`, `Store`, `Product`, `StoreStock`, `GlobalStock`, `Order`, `OrderItem`, `Payment`, `Promotion`, `CustomerPromotion`, `AuditLog`, `IdempotencyKey`, `RefreshToken`, `PasswordReset`.
 
 ---
 
@@ -310,7 +348,8 @@ Entidades principais: `User`, `Customer`, `Store`, `Product`, `StoreStock`, `Glo
 ### Testes automatizados
 
 ```bash
-npm run test
+npm run test     # 125 testes unitarios
+npm run test:e2e # 22 testes e2e (banco isolado em .env.test)
 ```
 
 ### Colecao Postman
@@ -319,25 +358,25 @@ Importe `docs/postman/raizes-do-nordeste.postman_collection.json` e execute na o
 
 1. **Auth** — cadastrar cliente → login (salva o token automaticamente)
 2. **Stores** — cardapio da unidade
-3. **Orders** — criar → pagar → atualizar status
-4. **Loyalty** — consultar saldo → resgatar pontos
+3. **Orders** — criar → pagar (com `Idempotency-Key`) → atualizar status
+4. **Loyalty** — consultar saldo → resgatar pontos → ver historico
 5. **Erros** — cenarios 401, 403, 409, 422
 
-O plano completo com 16 cenarios esta em `docs/test_plan.md`.
+O plano completo com cenarios esta em `docs/test_plan.md`.
 
 ---
 
 ## Meus proximos passos
 
 1. Montar o **PDF final ABNT** (requisitos, diagramas, LGPD, conclusao)
-2. Desenhar os **diagramas que faltam** (casos de uso, classes, sequencia)
-3. Escrever a **documentacao LGPD** no PDF
-4. (Opcional) promocoes, auditoria e padrao de erro completo
+2. Refinar **LGPD** (finalidade, base legal, retencao)
+3. Refinar **promocoes** (aplicacao automatica do desconto)
+4. Unificar **padrao de erro** com o template do roteiro
 
 ---
 
 ## Conclusao parcial
 
-A parte de **usuarios, autenticacao, roles, CRUDs, estoque, pedidos, pagamento mock e fidelizacao** ja esta funcionando com persistencia real, Swagger, testes e documentacao tecnica no repositorio.
+A parte de **usuarios, autenticacao, roles, CRUDs, estoque, pedidos, pagamento mock idempotente, fidelizacao com historico, promocoes e auditoria** ja esta funcionando com persistencia real, Swagger, testes (unitarios + e2e isolados) e documentacao tecnica no repositorio.
 
-O ponto que ainda pesa mais para fechar a entrega e o **PDF academico** — o backend em si ja da para demonstrar o fluxo completo de ponta a ponta.
+O ponto que ainda pesa mais para fechar a entrega e o **PDF academico** — o backend em si ja demonstra o fluxo completo de ponta a ponta, com isolamento de banco de teste e idempotencia no pagamento.

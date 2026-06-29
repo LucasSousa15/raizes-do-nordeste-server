@@ -1,0 +1,66 @@
+flowchart TB
+    subgraph API["API (Interface / Controllers)"]
+        C_AUTH[AuthController]
+        C_USERS[UsersController]
+        C_STORES[StoresController]
+        C_PROD[ProductsController]
+        C_STOCK[StocksController]
+        C_ORD[OrdersController]
+        C_LOY[LoyaltyController]
+    end
+
+    subgraph APP["Application (Use Cases / Services)"]
+        UC_LOGIN[SignInUseCase]
+        UC_LOGOUT[LogoutUseCase]
+        UC_CREATE_ORDER[CreateOrderUseCase]
+        UC_UPDATE_ORDER[UpdateOrderUseCase]
+        UC_PAY[MockPaymentService]
+        UC_ADD_POINTS[UpdateOrderUseCase.addLoyaltyPoints]
+        UC_REDEEM[RedeemLoyaltyPointsUseCase]
+        UC_HISTORY[GetLoyaltyHistoryUseCase]
+        UC_AUDIT[AuditService]
+    end
+
+    subgraph DOM["Domain (Entities + Regras)"]
+        D_ORDER[Order]
+        D_PRODUCT[Product]
+        D_STOCK[StoreStock]
+        D_USER[User / Customer]
+        D_PAY[Payment]
+        D_LOY[Customer.points]
+        D_AUDIT[AuditLog]
+        D_IDEM[IdempotencyKey]
+        REPOS[Repository Interfaces]
+    end
+
+    subgraph INF["Infrastructure"]
+        PRISMA[Prisma Service]
+        REPO_PRISMA[Prisma Repositories]
+        GUARDS[Guards JWT/Permission]
+        STRATS[Strategies JWT/Refresh]
+    end
+
+    C_AUTH --> UC_LOGIN
+    C_AUTH --> UC_LOGOUT
+    C_ORD --> UC_CREATE_ORDER
+    C_ORD --> UC_UPDATE_ORDER
+    C_LOY --> UC_REDEEM
+    C_LOY --> UC_HISTORY
+
+    UC_CREATE_ORDER --> D_ORDER
+    UC_UPDATE_ORDER --> UC_PAY
+    UC_UPDATE_ORDER --> UC_ADD_POINTS
+    UC_ADD_POINTS --> D_LOY
+    UC_UPDATE_ORDER --> UC_AUDIT
+    UC_REDEEM --> UC_AUDIT
+
+    UC_CREATE_ORDER --> REPOS
+    UC_UPDATE_ORDER --> REPOS
+    UC_PAY --> REPOS
+    REPOS --> REPO_PRISMA
+    REPO_PRISMA --> PRISMA
+    PRISMA --> D_ORDER
+
+    C_AUTH --> GUARDS
+    C_ORD --> GUARDS
+    GUARDS --> STRATS

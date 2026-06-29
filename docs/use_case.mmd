@@ -1,0 +1,77 @@
+flowchart LR
+    %% Atores
+    ClienteApp["Cliente (App/Web/Totem)"]
+    Atendente["Atendente (Balcao)"]
+    Cozinha["Cozinha"]
+    Gerente["Gerente / Administrador"]
+    Gateway["Gateway de Pagamento (Mock)"]
+
+    subgraph Auth["Auth"]
+        UC_SIGNIN[/"Fazer login"/]
+        UC_REFRESH[/"Renovar token"/]
+        UC_LOGOUT[/"Logout (revoga refresh)"/]
+        UC_RESET[/"Resetar senha"/]
+    end
+
+    subgraph Users["Usuarios"]
+        UC_REGISTER[/"Cadastrar cliente (LGPD)"/]
+        UC_MGMT[/"Gerenciar usuarios (admin)"/]
+    end
+
+    subgraph Stores["Unidades"]
+        UC_LIST_STORES[/"Listar unidades"/]
+        UC_MENU[/"Ver cardapio da unidade"/]
+        UC_MGMT_STORES[/"CRUD de unidades (admin)"/]
+    end
+
+    subgraph Products["Produtos e Estoque"]
+        UC_LIST_PROD[/"Listar produtos"/]
+        UC_MGMT_STOCK[/"Ajustar / transferir estoque"/]
+    end
+
+    subgraph Orders["Pedidos"]
+        UC_CREATE_ORDER[/"Criar pedido"/]
+        UC_LIST_ORDERS[/"Listar / filtrar pedidos"/]
+        UC_UPDATE_STATUS[/"Atualizar status"/]
+        UC_CANCEL[/"Cancelar pedido"/]
+        UC_PAY[/"Confirmar pagamento (mock)"/]
+    end
+
+    subgraph Loyalty["Fidelidade"]
+        UC_BALANCE[/"Consultar saldo de pontos"/]
+        UC_REDEEM[/"Resgatar pontos"/]
+        UC_HISTORY[/"Ver historico de pontos"/]
+    end
+
+    %% Relacionamentos ator -> caso de uso
+    ClienteApp --> UC_SIGNIN
+    ClienteApp --> UC_REGISTER
+    ClienteApp --> UC_LIST_STORES
+    ClienteApp --> UC_MENU
+    ClienteApp --> UC_CREATE_ORDER
+    ClienteApp --> UC_LIST_ORDERS
+    ClienteApp --> UC_PAY
+    ClienteApp --> UC_BALANCE
+    ClienteApp --> UC_REDEEM
+    ClienteApp --> UC_HISTORY
+    ClienteApp --> UC_LOGOUT
+
+    Atendente --> UC_LIST_STORES
+    Atendente --> UC_MENU
+    Atendente --> UC_LIST_ORDERS
+    Atendente --> UC_UPDATE_STATUS
+
+    Cozinha --> UC_LIST_ORDERS
+    Cozinha --> UC_UPDATE_STATUS
+
+    Gerente --> UC_MGMT
+    Gerente --> UC_MGMT_STORES
+    Gerente --> UC_MGMT_STOCK
+    Gerente --> UC_LIST_ORDERS
+    Gerente --> UC_CANCEL
+
+    Gateway --> UC_PAY
+
+    %% Reuso
+    UC_SIGNIN -.-> UC_REFRESH
+    UC_REFRESH -.-> UC_LOGOUT

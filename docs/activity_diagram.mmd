@@ -1,0 +1,27 @@
+flowchart TD
+    A([Inicio: Cliente confirma pagamento]) --> B{Header Idempotency-Key?}
+    B -- Nao --> X1[Pagamento com Math.random<br/>50% sucesso]
+    B -- Sim --> C[Consultar IdempotencyKeyRepository]
+    C --> D{Chave existe e nao expirou?}
+    D -- Sim, mesmo orderId --> E[Replay: retornar Order atual]
+    E --> F([Fim])
+    D -- Sim, orderId diferente --> G[409 IDEMPOTENCY_KEY_CONFLICT]
+    G --> F
+    D -- Nao --> H[Chamar MockPaymentService.requestPayment]
+    H --> I{simulateFailure = true<br/>ou prefixo reject-<br/>ou random false?}
+    I -- Sim --> J[Status = FAILED]
+    I -- Nao --> K[Status = SUCCESS]
+    X1 --> I
+
+    J --> L[AuditLog: PAYMENT_FAILED]
+    L --> M[Gravar IdempotencyKey status=422]
+    M --> N[throw PaymentNotApprovedError 422]
+    N --> F
+
+    K --> O[Credit pontos: floor total * 0.1]
+    O --> P[Atualizar Order status = CONFIRMED]
+    P --> Q[AuditLog: PAYMENT_APPROVED]
+    Q --> R[AuditLog: POINTS_EARNED]
+    R --> S[Gravar IdempotencyKey status=200]
+    S --> T[Retornar Order]
+    T --> F

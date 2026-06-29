@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor Cliente as Cliente (App/Web/Totem)
+    participant API as OrdersController
+    participant UC as UpdateOrderUseCase
+    participant IDEM as IdempotencyKeyRepository
+    participant PAY as MockPaymentService
+    participant PAY_REPO as PaymentRepository
+    participant ORD_REPO as OrderRepository
+    participant USERS as UsersRepository
+    participant AUDIT as AuditService
+
+    Cliente->>API: PATCH /orders/:id<br/>{ confirmPayment: true }<br/>Idempotency-Key: approve-xxx
+    API->>UC: execute(id, { confirmPayment, idempotencyKey })
+    UC->>ORD_REPO: findById(id)
+    ORD_REPO-->>UC: Order
+
+    alt Idempotency-Key ja usada (mesmo pedido)
+        UC->>IDEM: findByKey(key)
+        IDEM-->>UC: existing (orderId == order.id)
+        UC->>ORD_REPO: findById(id) (refresh)
+        ORD_REPO-->>UC: Order
+        UC-->>API: Order (replay)
+    else Idempotency-Key nova ou expirada
+        UC->>PAY: requestPayment({ orderId, amount, customerId, idempotencyKey })
+        Note over PAY: prefixo "approve-" = SUCCESS<br/>prefixo "reject-" = FAILED<br/>senao Math.random()
+        PAY->>PAY_REPO: create(request, response)
+        PAY_REPO-->>PAY: Payment
+        PAY-->>UC: Payment
+
+        alt Pagamento FAILED
+            UC->>AUDIT: logAction(PAYMENT_FAILED, { orderId, paymentId })
+            UC->>IDEM: create({ key, orderId, paymentId, status 422 })
+            UC-->>API: throw PaymentNotApprovedError (422)
+        else Pagamento SUCCESS
+            UC->>USERS: addPoints(customerId, floor(total * 0.1))
+            USERS-->>UC: novo saldo
+            UC->>ORD_REPO: update(id, { status: CONFIRMED })
+            ORD_REPO-->>UC: Order
+            UC->>AUDIT: logAction(PAYMENT_APPROVED, ...)
+            UC->>AUDIT: logAction(POINTS_EARNED, ...)
+            UC->>IDEM: create({ key, orderId, paymentId, status 200, responseBody })
+            UC-->>API: Order
+        end
+    end
+
+    API-->>Cliente: 200 Order { status: CONFIRMED }
