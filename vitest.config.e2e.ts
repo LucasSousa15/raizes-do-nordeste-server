@@ -12,11 +12,11 @@ export default defineConfig({
     testTimeout: 15000,
     fileParallelism: false,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    // poolOptions: {
+    //   forks: {
+    //     singleFork: true,
+    //   },
+    // },
     globalSetup: ['test/e2e/global-setup.ts'],
     alias: {
       'src': path.resolve(__dirname, 'src'),

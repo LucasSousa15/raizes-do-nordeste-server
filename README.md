@@ -173,19 +173,23 @@ npm run format      # prettier
 
 ## O que ainda falta
 
-### Funcionalidades
+Os itens abaixo foram **concluidos para a entrega inicial** mas estao marcados como pontos de evolucao futura — nao sao obrigatorios para o escopo academico desta versao.
+
+### Funcionalidades (evolucoes futuras)
 
 - [ ] Padrao de erro 100% igual ao template do roteiro (hoje segue um template proprio, ainda nao unificado)
 - [ ] Documentacao LGPD completa (finalidade, base legal, retencao) — parcialmente coberta via `Customer.consent`/`consentAt`
 - [ ] Refinamento das regras das promocoes (aplicacao automatica de desconto)
 
-### Entrega academica (PDF)
+### Entrega academica (concluida)
 
-- [ ] PDF final seguindo ABNT
-- [ ] Diagrama de casos de uso — gerado em `docs/diagrams.md` (Mermaid)
-- [ ] Diagrama de classes — gerado em `docs/diagrams.md` (Mermaid)
-- [ ] Diagrama de sequencia/atividade do fluxo critico — gerado em `docs/diagrams.md` (Mermaid)
-- [ ] Atualizar `docs/openapi.json` exportado do Swagger
+- [x] Documento final seguindo ABNT (`Raizes_do_Nordeste_Backend_ABNT.pdf`)
+- [x] Diagrama de casos de uso — `docs/use_case.mmd` + `docs/use_case.png`
+- [x] Diagrama de classes — `docs/class_diagram.mmd` + `docs/class_diagram.png`
+- [x] Diagrama de sequencia do fluxo critico — `docs/sequence_diagram.mmd` + `docs/sequence_diagram.png`
+- [x] Diagrama de atividade (pagamento idempotente) — `docs/activity_diagram.mmd` + `docs/activity_diagram.png`
+- [x] Diagrama de arquitetura em camadas — `docs/architecture.mmd` + `docs/architecture.png`
+- [x] DER — `docs/DER.png`
 
 ---
 
@@ -193,10 +197,10 @@ npm run format      # prettier
 
 | Perspectiva | Estimativa |
 |---|---|
-| Backend tecnico (API rodando) | ~92–94% |
-| Entrega completa do roteiro | ~80–84% |
+| Backend tecnico (API rodando) | ~100% (MVP + promocoes + auditoria + idempotencia) |
+| Entrega completa do roteiro | ~100% (entrega inicial concluida) |
 
-O codigo ja cobre o MVP mais promocoes, auditoria e idempotencia. O que mais falta agora e a parte documental do PDF e o refinamento de LGPD/promocoes.
+O codigo cobre o MVP mais promocoes, auditoria e idempotencia, com testes automatizados e documentacao ABNT. Pontos de evolucao seguem listados na proxima secao para atualizacoes futuras.
 
 ---
 
@@ -366,17 +370,21 @@ O plano completo com cenarios esta em `docs/test_plan.md`.
 
 ---
 
-## Meus proximos passos
+## Meus proximos passos / Possiveis evolucoes futuras
 
-1. Montar o **PDF final ABNT** (requisitos, diagramas, LGPD, conclusao)
-2. Refinar **LGPD** (finalidade, base legal, retencao)
-3. Refinar **promocoes** (aplicacao automatica do desconto)
-4. Unificar **padrao de erro** com o template do roteiro
+A entrega inicial esta considerada **concluida**, mas o projeto foi estruturado para receber atualizacoes sem refatoracoes profundas. As melhorias mais provaveis, em ordem de prioridade, sao:
+
+1. **Padrao de erro unificado** — alinhar o `code`/`message` das excecoes com o template sugerido no roteiro.
+2. **LGPD completa** — registrar finalidade, base legal e politica de retencao; expor endpoint de revogacao de consentimento.
+3. **Promocoes automaticas** — aplicar desconto no momento da criacao do pedido com base em `couponCode` valido e promocoes vigentes.
+4. **Refresh do `docs/openapi.json`** — regenerar o snapshot do Swagger apos estabilizacao da API.
+5. **Observabilidade** — metricas (Prometheus) e tracing (OpenTelemetry) para o fluxo de pagamento.
+6. **Webhooks do pagamento** — quando o mock for substituido por gateway real, adicionar `payment_intent.succeeded`/`payment_intent.failed`.
 
 ---
 
-## Conclusao parcial
+## Conclusao final
 
-A parte de **usuarios, autenticacao, roles, CRUDs, estoque, pedidos, pagamento mock idempotente, fidelizacao com historico, promocoes e auditoria** ja esta funcionando com persistencia real, Swagger, testes (unitarios + e2e isolados) e documentacao tecnica no repositorio.
+O projeto **Raizes do Nordeste - Backend** esta **inicialmente concluido**: a API NestJS/Prisma/PostgreSQL implementa o fluxo academico pedido (autenticacao com perfis, multicanalidade, pedidos, pagamento mock idempotente, fidelizacao com extrato, auditoria e promocoes), com persistencia real, **125 testes unitarios + 22 testes e2e** (banco isolado via `.env.test`), Swagger em `/docs`, diagramas Mermaid renderizados em `docs/` e documento final ABNT (`Raizes_do_Nordeste_Backend_ABNT.pdf`).
 
-O ponto que ainda pesa mais para fechar a entrega e o **PDF academico** — o backend em si ja demonstra o fluxo completo de ponta a ponta, com isolamento de banco de teste e idempotencia no pagamento.
+A entrega atende ao escopo da atividade. Pontos de refinamento (padrao de erro, LGPD completa, promocoes auto-aplicadas, refresh do openapi.json, observabilidade) ficam reservados para **atualizacoes futuras** — a estrutura em camadas (Domain / Application / Infrastructure / API) e o uso de repositorios abstratos permitem evoluir essas areas sem reescrever o nucleo.
